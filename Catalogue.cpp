@@ -18,6 +18,9 @@ using namespace std;
 #include <fstream>
 #include <ctime>
 #include <chrono>
+#include <vector>
+#include <dirent.h>
+#include <direct.h>
 //------------------------------------------------------ Include personnel
 #include "Catalogue.h"
 
@@ -38,11 +41,12 @@ const int maxMemeTrajet = 5;
 void Catalogue::SauvegardeTotale() const
 {
 	string nomFichier;
+    cout<<"veuillez donner le nom du fichier a utiliser :"<<endl;
 	cin >> nomFichier;
 	nomFichier += ".txt";
 	time_t date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 	ofstream fichierSortie;
-	fichierSortie.open(nomFichier);
+	fichierSortie.open(".\\battery\\"+nomFichier);
 	
 	//HeadLine
 	fichierSortie << nomCatalogue << endl;
@@ -74,20 +78,113 @@ void Catalogue::SauvegardeTotale() const
 	
 	fichierSortie.close();
 }
-void Catalogue::ChargementTotal()
+
+void Catalogue::ChargerAjouter(int OP) {
+
+}
+void Catalogue::ChargerRemplacement(int OP)
 {
 	ifstream chargement;
 	string nomFichier;
 	cin >> nomFichier;
-	chargement.open(nomFichier);
+	chargement.open(".\\battery\\"+nomFichier);
 	if(chargement.good())
 	{
 		cout << "Le fichier a été ouvert" << endl;
 	}else
 	{
-		cout << "Le fichier n'existe pas ou est en cours d'utilisation" << endl;
+		perror("Le fichier n'existe pas ou est en cours d'utilisation" );
 	}
 	chargement.close();
+
+}
+
+string Catalogue::ListeFichiers() const{
+    //init des variables
+    int fileID;
+    int i=1;
+	ifstream output;
+    vector<string> fileNames;
+    string outputName(".\\battery\\");
+    string lineReader;
+	DIR *dir;
+	struct dirent *ent;
+    //listage des fichiers du repertoire
+	if ((dir = opendir (".\\battery")) != NULL) {
+		while ((ent = readdir (dir)) != NULL) {
+            if(strcmp(ent->d_name,".")!=0 && strcmp(ent->d_name,"..")!=0) {
+                cout<<"File "<<i++<<": ";
+                cout<<ent->d_name;
+                outputName.append(ent->d_name);
+                fileNames.push_back(outputName);
+                output.open(outputName);
+                getline(output,lineReader);
+                cout<<"|"<<lineReader;
+                getline(output,lineReader);
+                cout<<"|"<<lineReader<<endl;
+                output.close();
+                output.clear();
+                outputName = ".\\battery\\";
+            }
+		}
+		closedir (dir);
+        //Phase de selection du catalogue a charger
+        if(i!=1) {
+            cout << "Veuillez indiquer le numero du catalogue a charger :" << endl;
+            cin >> fileID;
+            return fileNames[fileID - 1];
+        }else{
+            cout<< "Aucun Catalogue a charger. Retour au menu..."<<endl;
+            cout<< "----------------------------------------------------"<<endl;
+            return "0";
+        }
+	} else {
+		//could not open dir
+		perror ("Erreur lors de louverture du repertoire");
+		return "0";
+	}
+
+}
+
+void Catalogue::MenuChargement() {
+    string nomFichier;
+    int noOp,noOp2;
+	cout<<"Menu Chargement :"<<endl;
+	nomFichier = ListeFichiers();
+    if(nomFichier=="0"){
+        return;
+    }else{
+        nomFichier = nomFichier.substr(10);
+        cout<<"Vous avez choisi le fichier : "<<nomFichier<<endl;
+        cout<<"Quelle operation voulez-vous effectuer ?"<<endl;
+        cout<<"1: Remplacer le catalogue actuel."<<endl;
+        cout<<"2: Ajouter a la suite du catalogue actuel."<<endl;
+        cout<<"Tout autre chiffre pour abandonner et revenir au menu."<<endl;
+        cin>> noOp;
+        switch (noOp) {
+            case 1:
+                cout << "Quelles trajets voulez-vous selectionner ?" << endl;
+                cout << "1: Tous les trajets du nouveau catalogue." << endl;
+                cout << "2: Que les trajets simples." << endl;
+                cout << "3: Que les trajets composes." << endl;
+                cout << "4: Par nom de ville." << endl;
+                cin >> noOp2;
+                ChargerRemplacement(noOp2);
+                break;
+            case 2:
+                cout << "Quelles trajets voulez-vous selectionner ?" << endl;
+                cout << "1: Tous les trajets du nouveau catalogue." << endl;
+                cout << "2: Que les trajets simples." << endl;
+                cout << "3: Que les trajets composes." << endl;
+                cout << "4: Par nom de ville." << endl;
+                cin >> noOp2;
+                ChargerAjouter(noOp2);
+                break;
+            default:
+                cout << "Retour au menu principal..." << endl;
+                return;
+        }
+    }
 }
 
 void Catalogue::delete2D(char **table)
@@ -607,7 +704,12 @@ void Catalogue::MenuCatalogue ()
 #endif
 	bool sortie =false;
 	int choix =0;
-	while(!sortie)
+    if( _mkdir( ".\\battery" ) == 0 ) {
+        cout<<"dossier battery cree."<<endl;
+    }else{
+        cout<<"battery dir deja existant ou nest pas accessible."<<endl;
+    }
+        while(!sortie)
 	{
 		cout<<"Choisissez une operation:"<<endl;
 		cout<<"1: Afficher le catalogue"<<endl;
@@ -616,7 +718,8 @@ void Catalogue::MenuCatalogue ()
 		cout<<"4: Faire une recherche simple de parcours"<<endl;
 		cout<<"5: Faire une recherche avancee de parcours" << endl;
 		cout<<"6: Sauvegarder le catalogue"<<endl;
-		cout<<"7: Quitter le catalogue"<<endl;
+		cout<<"7: Charger un catalogue"<<endl;
+		cout<<"8: Quitter le catalogue"<<endl;
 		cin >> choix;
 		switch (choix)
 		{
@@ -639,6 +742,9 @@ void Catalogue::MenuCatalogue ()
 				SauvegardeTotale();
 				break;
 			case 7:
+				MenuChargement();
+				break;
+			case 8:
 				sortie = true;
 				break;
 			default:
@@ -686,7 +792,6 @@ Catalogue::~Catalogue ( )
 #endif
 }
 //----- Fin de ~Catalogue
-
 
 //------------------------------------------------------------------ PRIVE
 
@@ -738,5 +843,7 @@ int ***Catalogue::MatriceNomTrajetsInversee()
 
 	return matrixAdj;
 }
+
+
 
 //------------------------------------------------------- Méthodes privées

@@ -4,14 +4,14 @@ CC      = g++
 CFLAGS  = -Wall -c
 OFLAGS = -Wall -o
 DEFFLAGS =
-GFLAGS = -g -std=c++11
+GFLAGS = -g -std=gnu++11
 
 
 
 all: TP2Voyage clean
 
 TP2Voyage: main.o Trajet.o TrajetSimple.o TrajetCompose.o Parcours.o Catalogue.o
-	$(CC) $(OFLAGS) TP2Voyage main.o Trajet.o TrajetSimple.o TrajetCompose.o Parcours.o Catalogue.o
+    $(CC) $(OFLAGS) TP2Voyage main.o Trajet.o TrajetSimple.o TrajetCompose.o Parcours.o Catalogue.o
 
 main.o: main.cpp
 	$(CC) $(CFLAGS) $(GFLAGS) main.cpp
