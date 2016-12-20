@@ -285,7 +285,31 @@ void Catalogue::MenuSauvegarde() const
 
 void Catalogue::ChargementType(string nomFichier, int noOp)
 {
+    ifstream chargement;
+    string lineText, lineText2;
+    chargement.open(".\\battery\\" + nomFichier);
+    if (chargement.good()) {
+        cout << "Le fichier a ete ouvert... Execution du chargement." << endl;
+    } else {
+        perror("Le fichier nexiste pas ou est en cours d'utilisation.");
+    }
+    // remplacement partiel du catalogue selon ts ou tc
+    gotoOPLine(chargement);
+    Parcours *currentParcours = listeTrajets;
+    while (currentParcours->nextParcours != NULL) {
+        currentParcours = currentParcours->nextParcours;
+    }
 
+    while (getline(chargement, lineText)) {
+        if (noOp==2 && atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
+            stringToTrajetSimple(lineText);
+        }
+        if (noOp ==3 && atoi(lineText.substr(0, 4).c_str()) > 1000) {
+            getline(chargement, lineText2);
+            stringToTrajetCompose(lineText, lineText2);
+        }
+    }
+    cout<<"Chargement termine. Retour au Menu."<<endl<<"-------------------------------------------------------"<<endl;
 }
 
 void Catalogue::ChargementCustomCity(string nomFichier)
@@ -309,7 +333,7 @@ void Catalogue::ChargementTotal(string nomFichier)
         perror("Le fichier nexiste pas ou est en cours d'utilisation");
     }
     // remplacement total du catalogue
-    gotoOPLine(chargement, 1);
+    gotoOPLine(chargement);
     Parcours *currentParcours = listeTrajets;
     while (currentParcours->nextParcours != NULL) {
         currentParcours = currentParcours->nextParcours;
@@ -1028,21 +1052,13 @@ int ***Catalogue::MatriceNomTrajetsInversee()
     return matrixAdj;
 }
 
-int Catalogue::gotoOPLine(ifstream &input, int codeOP)
+void Catalogue::gotoOPLine(ifstream &input)
 {
     int line = 0;
     string lineText;
-    switch (codeOP) {
-        case 1:
-            input.seekg(input.beg);
-            while (line != fileTSStartingLine && getline(input, lineText)) {
-                line++;
-            }
-            return 0;
-            break;
-        case 2:
-            input.seekg(input.beg);
-
+    input.seekg(input.beg);
+    while (line != fileTSStartingLine && getline(input, lineText)) {
+        line++;
     }
 }
 

@@ -65,7 +65,7 @@ protected:
 //----------------------------------------------------- Méthodes protégées
     void stringToTrajetSimple(const string st);
     void stringToTrajetCompose(const string st,const string st2);
-    int gotoOPLine(ifstream &input,int codeOP);
+    void gotoOPLine(ifstream &input);
     int ** MatriceAdjacenceInversee();
     char ** MatriceTrajetsInversee();
     int *** MatriceNomTrajetsInversee();
