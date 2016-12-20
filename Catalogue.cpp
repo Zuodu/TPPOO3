@@ -40,8 +40,9 @@ const int maxMemeTrajet = 5;
 //----------------------------------------------------- Méthodes publiques
 void Catalogue::SauvegardeTotale() const
 {
+	bool sautLigne = false;
 	string nomFichier;
-    cout<<"veuillez donner le nom du fichier a utiliser :"<<endl;
+    cout<<"Veuillez donner le nom du fichier a utiliser :"<<endl;
 	cin >> nomFichier;
 	nomFichier += ".txt";
 	time_t date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -62,9 +63,13 @@ void Catalogue::SauvegardeTotale() const
 		if(currentParcours->trajetAssocie->id<=TCstart)
 		{
 			currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
+			sautLigne = true;
 		}
 	}
-	fichierSortie << endl;
+	if (sautLigne)
+	{
+		fichierSortie << endl;
+	}
 	//Trajets composés
 	currentParcours = listeTrajets;
 	while (currentParcours->nextParcours != NULL)
@@ -75,27 +80,250 @@ void Catalogue::SauvegardeTotale() const
 			currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
 		}
 	}
-	
+
+	cout << "Sauvegarde faite" << endl;
 	fichierSortie.close();
 }
 
-void Catalogue::ChargerAjouter(int OP) {
+void Catalogue::SauvegardeTypeTrajet() const 
+{
+	string nomFichier;
+	cout << "Veuillez donner le nom du fichier a utiliser :" << endl;
+	cin >> nomFichier;
+	nomFichier += ".txt";
+	string typeTrajet;
+	cout << "Veuillez dire si vous voulez enregistrer les trajets simples ou composes (entrez 'S' ou 'C') :" << endl;
+	do {
+		cin >> typeTrajet;
+		if (typeTrajet.compare("S") != 0 && typeTrajet.compare("C") != 0)
+		{
+			cout << "Rentrez 'S' ou 'C' :" << endl;
+		}
+	} while (typeTrajet.compare("S") != 0 && typeTrajet.compare("C") != 0);
+	time_t date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	ofstream fichierSortie;
+	fichierSortie.open(".\\battery\\" + nomFichier);
+
+	//HeadLine
+	fichierSortie << nomCatalogue << endl;
+	fichierSortie << "Type" << endl;
+	fichierSortie << idTS - 1 << endl;
+	fichierSortie << idTC - TCstart - 1 << endl;
+	fichierSortie << ctime(&date) << endl;
+
+	Parcours* currentParcours = listeTrajets;
+
+	if (typeTrajet.compare("S") == 0) {
+		while (currentParcours->nextParcours != NULL)
+		{
+			currentParcours = currentParcours->nextParcours;
+			if (currentParcours->trajetAssocie->id <= TCstart)
+			{
+				currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
+			}
+		}
+	}
+	else {
+		//Trajets composés
+		while (currentParcours->nextParcours != NULL)
+		{
+			currentParcours = currentParcours->nextParcours;
+			if (currentParcours->trajetAssocie->id > TCstart)
+			{
+				currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
+			}
+		}
+	}
+
+	cout << "Sauvegarde faite" << endl;
+	fichierSortie.close();
+}
+
+void Catalogue::SauvegardeFonctionVille() const 
+{
+	char unDepart[LG];
+	char uneArrivee[LG];
+	bool departNull = false;
+	bool arriveeNull = false;
+	bool sautLigne = false;
+
+	string nomFichier;
+	cout << "Veuillez donner le nom du fichier a utiliser :" << endl;
+	cin >> nomFichier;
+	nomFichier += ".txt";
+	cout << "Veuillez donner la ville de depart des trajets a sauvegarder (1 si cela n'importe pas):" << endl;
+	cin >> unDepart;
+	cout << "Veuillez donner la ville de d'arrivee des trajets a sauvegarder (1 si cela n'importe pas):" << endl;
+	cin >> uneArrivee;
+	char * depart = new char[strlen(unDepart)]; //mise en char*
+	char * arrivee = new char[strlen(uneArrivee)];
+	//copie des attributs
+	strcpy(depart, unDepart);
+	strcpy(arrivee, uneArrivee);
+	if (strcmp(depart, "1") == 0)
+	{
+		departNull = true;
+	}
+	if (strcmp(arrivee, "1") == 0)
+	{
+		arriveeNull = true;
+	}
+	//Chrono et ouverture du fichier
+	time_t date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	ofstream fichierSortie;
+	fichierSortie.open(".\\battery\\" + nomFichier);
+
+	//HeadLine
+	fichierSortie << nomCatalogue << endl;
+	fichierSortie << "Ville" << endl;
+	fichierSortie << idTS - 1 << endl;
+	fichierSortie << idTC - TCstart - 1 << endl;
+	fichierSortie << ctime(&date) << endl;
+
+	//Trajets Simples
+	Parcours* currentParcours = listeTrajets;
+	if (departNull && arriveeNull)
+	{
+		while (currentParcours->nextParcours != NULL)
+		{
+			currentParcours = currentParcours->nextParcours;
+			if (currentParcours->trajetAssocie->id <= TCstart)
+			{
+				currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
+				sautLigne = true;
+			}
+		}
+		if (sautLigne)
+		{
+			fichierSortie << endl;
+		}
+		//Trajets composés
+		currentParcours = listeTrajets;
+		while (currentParcours->nextParcours != NULL)
+		{
+			currentParcours = currentParcours->nextParcours;
+			if (currentParcours->trajetAssocie->id > TCstart)
+			{
+				currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
+			}
+		}
+	}
+	else if (departNull) 
+	{
+		while (currentParcours->nextParcours != NULL)
+		{
+			currentParcours = currentParcours->nextParcours;
+			if (currentParcours->trajetAssocie->id <= TCstart && currentParcours->trajetAssocie->comparerArrivee(arrivee))
+			{
+				currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
+				sautLigne = true;
+			}
+		}
+		if (sautLigne)
+		{
+			fichierSortie << endl;
+		}
+		//Trajets composés
+		currentParcours = listeTrajets;
+		while (currentParcours->nextParcours != NULL)
+		{
+			currentParcours = currentParcours->nextParcours;
+			if (currentParcours->trajetAssocie->id > TCstart && currentParcours->trajetAssocie->comparerArrivee(arrivee))
+			{
+				currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
+			}
+		}
+	}
+	else if (arriveeNull)
+	{
+		while (currentParcours->nextParcours != NULL)
+		{
+			currentParcours = currentParcours->nextParcours;
+			if (currentParcours->trajetAssocie->id <= TCstart && currentParcours->trajetAssocie->comparerDepart(depart))
+			{
+				currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
+				sautLigne = true;
+			}
+		}
+		if (sautLigne)
+		{
+			fichierSortie << endl;
+		}
+		//Trajets composés
+		currentParcours = listeTrajets;
+		while (currentParcours->nextParcours != NULL)
+		{
+			currentParcours = currentParcours->nextParcours;
+			if (currentParcours->trajetAssocie->id > TCstart && currentParcours->trajetAssocie->comparerDepart(depart))
+			{
+				currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
+			}
+		}
+	}
+	else
+	{
+		while (currentParcours->nextParcours != NULL)
+		{
+			currentParcours = currentParcours->nextParcours;
+			if (currentParcours->trajetAssocie->id <= TCstart && currentParcours->trajetAssocie->comparerTrajet(depart,arrivee))
+			{
+				currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
+				sautLigne = true;
+			}
+		}
+		if (sautLigne)
+		{
+			fichierSortie << endl;
+		}
+		//Trajets composés
+		currentParcours = listeTrajets;
+		while (currentParcours->nextParcours != NULL)
+		{
+			currentParcours = currentParcours->nextParcours;
+			if (currentParcours->trajetAssocie->id > TCstart && currentParcours->trajetAssocie->comparerTrajet(depart, arrivee))
+			{
+				currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
+			}
+		}
+	}
+	cout << "Sauvegarde faite" << endl;
+	fichierSortie.close();
+}
+
+void Catalogue::SauvegardeIntervalle() const 
+{
 
 }
-void Catalogue::ChargerRemplacement(int OP)
+
+void Catalogue::MenuSauvegarde() const 
 {
-	ifstream chargement;
-	string nomFichier;
-	cin >> nomFichier;
-	chargement.open(".\\battery\\"+nomFichier);
-	if(chargement.good())
+	int choix;
+	cout << "Quel type de sauvegarde voulez vous faire ?" << endl;
+	cout << "1: Sauvegarde complete" << endl;
+	cout << "2: Sauvegarder uniquement un type de trajet (Simple ou Compose)" << endl;
+	cout << "3: Sauvegarder les trajets en fonction de ville de depart et/ou arrivee" << endl;
+	cout << "4: Sauvegarder un intervalle de trajet (d'un Trajet A à un Trajet B)" << endl;
+	cin >> choix;
+	switch (choix)
 	{
-		cout << "Le fichier a été ouvert" << endl;
-	}else
-	{
-		perror("Le fichier n'existe pas ou est en cours d'utilisation" );
+	case 1:
+		SauvegardeTotale();
+		break;
+	case 2:
+		SauvegardeTypeTrajet();
+		break;
+	case 3:
+		SauvegardeFonctionVille();
+		break;
+	case 4:
+		SauvegardeIntervalle();
+		break;
+	default:
+		cout << "Cette option n'est pas disponible, retour au menu principal" << endl;
 	}
-	chargement.close();
+}
+
+void Catalogue::ChargerAjouter(int OP) {
 
 }
 
@@ -140,7 +368,7 @@ string Catalogue::ListeFichiers() const{
         }
 	} else {
 		//could not open dir
-		perror ("Erreur lors de louverture du repertoire");
+		perror ("Erreur lors de l'ouverture du repertoire");
 		return "0";
 	}
 
@@ -169,7 +397,7 @@ void Catalogue::MenuChargement() {
                 cout << "3: Que les trajets composes." << endl;
                 cout << "4: Par nom de ville." << endl;
                 cin >> noOp2;
-                ChargerRemplacement(noOp2);
+//                ChargerRemplacement(noOp2);
                 break;
             case 2:
                 cout << "Quelles trajets voulez-vous selectionner ?" << endl;
@@ -395,7 +623,7 @@ int*** Catalogue::RechercheGraphe(char *depart,char *arrivee,int **matrixAdj,int
 #ifdef MAP
 	cout << "Appel a la methode <RechercheGraphe>" << endl;
 #endif
-	int indexParcouru[nbMax];
+	int *indexParcouru= new int [nbMax];
 	int departIndex = 0,arriveeIndex = 0;
 	int currentDepartIndex =0;
 	int lastDepartIndex = 0;
@@ -739,7 +967,7 @@ void Catalogue::MenuCatalogue ()
 				RechercheAvancee();
 				break;
 			case 6:
-				SauvegardeTotale();
+				MenuSauvegarde();
 				break;
 			case 7:
 				MenuChargement();

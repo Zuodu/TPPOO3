@@ -18,7 +18,6 @@ void initCatalogue()
 
 int main()
 {
-
 	initCatalogue();
     return 0;
 }
