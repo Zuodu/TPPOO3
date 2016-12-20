@@ -27,12 +27,17 @@ class Catalogue
 public:
 //----------------------------------------------------- Méthodes publiques
 	void SauvegardeTotale() const;
+	void SauvegardeTypeTrajet() const;
+	void SauvegardeFonctionVille() const;
+	void SauvegardeIntervalle() const;
+	void MenuSauvegarde() const;
 	void MenuChargement();
 	string ListeFichiers() const;
 	void ChargementTotal(string);
     void ChargementType(string,int);
     void ChargementCustomCity(string);
     void ChargementCustomID(string);
+    void ChargerAjouter(int);
     void delete2D(char** table);
     void delete2D(int** table);
     void delete3D(int*** table);
