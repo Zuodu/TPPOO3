@@ -29,8 +29,10 @@ public:
 	void SauvegardeTotale() const;
 	void MenuChargement();
 	string ListeFichiers() const;
-	void ChargerRemplacement(int);
-    void ChargerAjouter(int);
+	void ChargementTotal(string);
+    void ChargementType(string,int);
+    void ChargementCustomCity(string);
+    void ChargementCustomID(string);
     void delete2D(char** table);
     void delete2D(int** table);
     void delete3D(int*** table);
@@ -57,6 +59,9 @@ public:
 
 protected:
 //----------------------------------------------------- Méthodes protégées
+    void stringToTrajetSimple(const string st);
+    void stringToTrajetCompose(const string st,const string st2);
+    int gotoOPLine(ifstream &input,int codeOP);
     int ** MatriceAdjacenceInversee();
     char ** MatriceTrajetsInversee();
     int *** MatriceNomTrajetsInversee();

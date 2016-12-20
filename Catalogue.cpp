@@ -21,6 +21,7 @@ using namespace std;
 #include <vector>
 #include <dirent.h>
 #include <direct.h>
+#include <stdlib.h>
 //------------------------------------------------------ Include personnel
 #include "Catalogue.h"
 
@@ -29,6 +30,7 @@ using namespace std;
 const int LG = 20;
 const int  TCstart = 1000;
 const int maxMemeTrajet = 5;
+const int fileTSStartingLine=6;
 //---------------------------------------------------- Variables de classe
 
 //----------------------------------------------------------- Types privés
@@ -79,27 +81,50 @@ void Catalogue::SauvegardeTotale() const
 	fichierSortie.close();
 }
 
-void Catalogue::ChargerAjouter(int OP) {
+void Catalogue::ChargementType(string nomFichier, int noOp) {
 
 }
-void Catalogue::ChargerRemplacement(int OP)
+
+void Catalogue::ChargementCustomCity(string nomFichier){
+
+}
+
+void Catalogue::ChargementCustomID(string nomFichier) {
+
+}
+
+void Catalogue::ChargementTotal(string nomFichier)
 {
 	ifstream chargement;
-	string nomFichier;
-	cin >> nomFichier;
-	chargement.open(".\\battery\\"+nomFichier);
+	string lineText,lineText2;
+    chargement.open(".\\battery\\"+nomFichier);
 	if(chargement.good())
 	{
-		cout << "Le fichier a été ouvert" << endl;
+		cout << "Le fichier a ete ouvert" << endl;
 	}else
 	{
-		perror("Le fichier n'existe pas ou est en cours d'utilisation" );
+		perror("Le fichier nexiste pas ou est en cours d'utilisation" );
 	}
-	chargement.close();
-
+    // remplacement total du catalogue
+    gotoOPLine(chargement,1);
+    Parcours* currentParcours = listeTrajets;
+    while(currentParcours->nextParcours != NULL)
+    {
+        currentParcours = currentParcours->nextParcours;
+    }
+    while(getline(chargement,lineText)) {
+        if(atoi(lineText.substr(0,4).c_str())<=1000 && atoi(lineText.substr(0,4).c_str())>0) {
+            stringToTrajetSimple(lineText);
+        }
+        if(atoi(lineText.substr(0,4).c_str())>1000){
+            getline(chargement,lineText2);
+            stringToTrajetCompose(lineText,lineText2);
+        }
+    }
 }
 
-string Catalogue::ListeFichiers() const{
+string Catalogue::ListeFichiers() const
+{
     //init des variables
     int fileID;
     int i=1;
@@ -146,9 +171,10 @@ string Catalogue::ListeFichiers() const{
 
 }
 
-void Catalogue::MenuChargement() {
+void Catalogue::MenuChargement()
+{
     string nomFichier;
-    int noOp,noOp2;
+    int noOp;
 	cout<<"Menu Chargement :"<<endl;
 	nomFichier = ListeFichiers();
     if(nomFichier=="0"){
@@ -156,29 +182,28 @@ void Catalogue::MenuChargement() {
     }else{
         nomFichier = nomFichier.substr(10);
         cout<<"Vous avez choisi le fichier : "<<nomFichier<<endl;
-        cout<<"Quelle operation voulez-vous effectuer ?"<<endl;
-        cout<<"1: Remplacer le catalogue actuel."<<endl;
-        cout<<"2: Ajouter a la suite du catalogue actuel."<<endl;
-        cout<<"Tout autre chiffre pour abandonner et revenir au menu."<<endl;
+        cout << "Quelles trajets voulez-vous selectionner ?" << endl;
+        cout << "1: Tous les trajets du fichier de sauvegarde." << endl;
+        cout << "2: Que les trajets simples." << endl;
+        cout << "3: Que les trajets composes." << endl;
+        cout << "4: Par nom de ville." << endl;
+        cout << "5: Selon une selection de trajets"<<endl;
         cin>> noOp;
         switch (noOp) {
             case 1:
-                cout << "Quelles trajets voulez-vous selectionner ?" << endl;
-                cout << "1: Tous les trajets du nouveau catalogue." << endl;
-                cout << "2: Que les trajets simples." << endl;
-                cout << "3: Que les trajets composes." << endl;
-                cout << "4: Par nom de ville." << endl;
-                cin >> noOp2;
-                ChargerRemplacement(noOp2);
+                ChargementTotal(nomFichier);
                 break;
             case 2:
-                cout << "Quelles trajets voulez-vous selectionner ?" << endl;
-                cout << "1: Tous les trajets du nouveau catalogue." << endl;
-                cout << "2: Que les trajets simples." << endl;
-                cout << "3: Que les trajets composes." << endl;
-                cout << "4: Par nom de ville." << endl;
-                cin >> noOp2;
-                ChargerAjouter(noOp2);
+                ChargementType(nomFichier,noOp);
+                break;
+            case 3:
+                ChargementType(nomFichier,noOp);
+                break;
+            case 4:
+                ChargementCustomCity(nomFichier);
+                break;
+            case 5:
+                ChargementCustomID(nomFichier);
                 break;
             default:
                 cout << "Retour au menu principal..." << endl;
@@ -249,7 +274,7 @@ void Catalogue::AfficherCatalogue () const
 	}
 	cout <<"--------------------------------------------"<<endl;
 	cout <<"--------------FIN DU CATALOGUE--------------"<<endl;
-} //----- Fin de Méthode
+}
 
 void Catalogue::AddToCatalogue (Trajet *unTrajet)
 {
@@ -842,6 +867,128 @@ int ***Catalogue::MatriceNomTrajetsInversee()
 	}
 
 	return matrixAdj;
+}
+
+int Catalogue::gotoOPLine(ifstream &input,int codeOP) {
+    int line = 0;
+    string lineText;
+    switch (codeOP){
+        case 1:
+            input.seekg(input.beg);
+            while(line !=fileTSStartingLine && getline(input,lineText)){
+                line++;
+            }
+            return 0;
+            break;
+        case 2:
+            input.seekg(input.beg);
+
+    }
+}
+
+void Catalogue::stringToTrajetSimple(const string st)
+{
+    int i=0;
+    string depart,arrivee,transport;
+    while(st[i]!='|'){
+        i++;
+    }
+    i++;
+    while(st[i]!='|'){
+        depart.push_back(st[i++]);
+    }
+    i++;
+    while(st[i]!='|'){
+        arrivee.push_back(st[i++]);
+    }
+    i++;
+    while(i<st.size()){
+        transport.push_back(st[i++]);
+    }
+    char* pdepart = new char[LG];
+    char* parrivee = new char[LG];
+    char* ptransport = new char[LG];
+    strcpy(pdepart,depart.c_str());
+    strcpy(parrivee,arrivee.c_str());
+    strcpy(ptransport,transport.c_str());
+    TrajetSimple * nouveauTrajet = new TrajetSimple(idTS,pdepart,parrivee,ptransport);
+    AddToCatalogue(nouveauTrajet);
+    idTS++;
+}
+
+void Catalogue::stringToTrajetCompose(const string st, const string st2)
+{
+    int i = 0;
+    string departC, arriveeC, depart, arrivee, transport;
+    char *pdepartC = new char[LG];
+    char *parriveeC = new char[LG];
+    while (st[i] != '|') {
+        i++;
+    }
+    i++;
+    while (st[i] != '|') {
+        departC.push_back(st[i++]);
+    }
+    i++;
+    while (i < st.size()) {
+        arriveeC.push_back(st[i++]);
+    }
+    i = 1;
+    strcpy(pdepartC, departC.c_str());
+    strcpy(parriveeC, arriveeC.c_str());
+    while (st2[i] != '|') {
+        depart.push_back(st2[i++]);
+    }
+    i++;
+    while (st2[i] != '|') {
+        arrivee.push_back(st2[i++]);
+    }
+    i++;
+    while (st2[i] != '|') {
+        transport.push_back(st2[i++]);
+    }
+    i++;
+    char *pdepart = new char[LG];
+    char *parrivee = new char[LG];
+    char *ptransport = new char[LG];
+    strcpy(pdepart, depart.c_str());
+    strcpy(parrivee, arrivee.c_str());
+    strcpy(ptransport, transport.c_str());
+    TrajetSimple* nouveauTrajetSimple = new TrajetSimple(idTC,pdepart,parrivee,ptransport);
+    Parcours* nouveauParcours = new Parcours(nouveauTrajetSimple);
+    TrajetCompose *nouveauTrajetCompose = new TrajetCompose(idTC, pdepartC, parriveeC, nouveauParcours);
+    //FIN DE INIT
+    depart.clear();
+    arrivee.clear();
+    transport.clear();
+    while (i < st2.size()) {
+        while (st2[i] != '|') {
+            depart.push_back(st2[i++]);
+        }
+        i++;
+        while (st2[i] != '|') {
+            arrivee.push_back(st2[i++]);
+        }
+        i++;
+        while (st2[i] != '|' && i<st2.size()) {
+            transport.push_back(st2[i++]);
+        }
+        i++;
+        char *pdepart2 = new char[LG];
+        char *parrivee2 = new char[LG];
+        char *ptransport2 = new char[LG];
+        strcpy(pdepart2, depart.c_str());
+        strcpy(parrivee2, arrivee.c_str());
+        strcpy(ptransport2, transport.c_str());
+        TrajetSimple *nouveauTrajet = new TrajetSimple(idTC, pdepart2, parrivee2, ptransport2);
+        Parcours * currentParcours = new Parcours(nouveauTrajet);
+        nouveauParcours->nextParcours = currentParcours;
+        nouveauParcours = currentParcours;
+        depart.clear();
+        arrivee.clear();
+        transport.clear();
+    }
+    AddToCatalogue(nouveauTrajetCompose);
 }
 
 
