@@ -1,0 +1,10 @@
+Cata1
+Totale
+2
+1
+Tue Dec 20 21:01:26 2016
+
+2|B|C|L
+
+1001|A|C
+|A|B|J|B|C|P
