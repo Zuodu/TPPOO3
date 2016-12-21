@@ -291,7 +291,7 @@ void Catalogue::ChargementType(string nomFichier, int noOp)
     if (chargement.good()) {
         cout << "Le fichier a ete ouvert... Execution du chargement." << endl;
     } else {
-        perror("Le fichier nexiste pas ou est en cours d'utilisation.");
+        cerr<<"Le fichier nexiste pas ou est en cours d'utilisation."<<endl;
     }
     // remplacement partiel du catalogue selon ts ou tc
     gotoOPLine(chargement);
@@ -323,7 +323,7 @@ void Catalogue::ChargementCustomCity(string nomFichier)
     if (chargement.good()) {
         cout << "Le fichier a ete ouvert... Execution du chargement." << endl;
     } else {
-        perror("Le fichier nexiste pas ou est en cours d'utilisation.");
+        cerr<<"Le fichier nexiste pas ou est en cours d'utilisation."<<endl;
     }
     //entree des variables
     while(select) {
@@ -399,13 +399,84 @@ void Catalogue::ChargementCustomCity(string nomFichier)
         cout<<"fin du chargement, retour au menu principal..."<<endl;
     }
     if(nbTrajetsCharges==0){
-        perror("ATTENTION: aucun trajet du fichier ne correspond aux conditions, aucun trajet n'a ete charge.");
+        cerr<<"ATTENTION: aucun trajet du fichier ne correspond aux conditions, aucun trajet n'a ete charge."<<endl;
     }
 }
 
 void Catalogue::ChargementCustomID(string nomFichier)
 {
-
+    int IDSvg = 1;
+    int debut=0,fin=1,nbTrajetsCharges = 0;
+    bool select = true;
+    ifstream chargement;
+    string lineText, lineText2,response;
+    chargement.open(".\\battery\\" + nomFichier);
+    if (chargement.good()) {
+        cout << "Le fichier a ete ouvert... Execution du chargement." << endl;
+    } else {
+        cerr<<"Le fichier nexiste pas ou est en cours d'utilisation."<<endl;
+    }
+    cout <<"------------------------------------------------------"<<endl<<"AFFICHAGE DES TRAJETS DU FICHIER :"<<endl;
+    gotoOPLine(chargement);
+    while (getline(chargement, lineText)) {
+        if (atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
+            cout << IDSvg++ << " : Trajet Simple " << lineText<<endl;
+        }
+        if (atoi(lineText.substr(0, 4).c_str()) > 1000) {
+            getline(chargement, lineText2);
+            cout << IDSvg++ << " : Trajet Compose " << lineText <<"   Avec : " << lineText2 <<endl;
+        }
+    }
+    chargement.clear();
+    //FIN AFFICHAGE
+    while(select) {
+        select = false;
+        cout << "---------------------------------" << endl << "Quels trajets choisir ?" << endl;
+        cout << "De ?" << endl;
+        cin >> debut;
+        cout << "A ?" << endl;
+        cin >> fin;
+        if(debut < 1){
+            cerr<<"ATTENTION : Le debut de l'intervalle  est plus petit que 1 ! Recommencez la saisie"<<endl;
+            select  = true;
+        }
+        if(fin>IDSvg-1){
+            cerr<<"ATTENTION : la fin de l'intervalle depasse le nombre total de trajet, se limiter au dernier trajet ?"
+                           "Y pour oui, N pour recommencer la saisie. (Y/N)"<<endl;
+            cin >> response;
+            if(response.compare("Y")==0){
+                fin = IDSvg-1;
+            }else{
+                select = true;
+            }
+        }
+    }
+    //FIN PROMPT
+    gotoOPLine(chargement);
+    IDSvg = 1;
+    Parcours *currentParcours = listeTrajets;
+    while (currentParcours->nextParcours != NULL) {
+        currentParcours = currentParcours->nextParcours;
+    }
+    while (getline(chargement, lineText)) {
+        if (atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
+            if(IDSvg>=debut && IDSvg<=fin){
+                stringToTrajetSimple(lineText);
+                nbTrajetsCharges++;
+            }
+            IDSvg++;
+        }
+        if (atoi(lineText.substr(0, 4).c_str()) > 1000) {
+            getline(chargement, lineText2);
+            if(IDSvg>=debut && IDSvg<=fin){
+                stringToTrajetCompose(lineText,lineText2);
+                nbTrajetsCharges++;
+            }
+            IDSvg++;
+        }
+    }//END OF CHARGEMENT
+    cout<<"fin du chargement, "<<nbTrajetsCharges<<" Trajets ont ete charges, retour au menu principal..."<<endl;
+    cout <<"---------------------------------------------------"<<endl;
 }
 
 void Catalogue::ChargementTotal(string nomFichier)
@@ -416,7 +487,7 @@ void Catalogue::ChargementTotal(string nomFichier)
     if (chargement.good()) {
         cout << "Le fichier a ete ouvert" << endl;
     } else {
-        perror("Le fichier nexiste pas ou est en cours d'utilisation");
+        cerr<<"Le fichier nexiste pas ou est en cours d'utilisation"<<endl;
     }
     // remplacement total du catalogue
     gotoOPLine(chargement);
@@ -448,6 +519,7 @@ string Catalogue::ListeFichiers() const
     struct dirent *ent;
     //listage des fichiers du repertoire
     if ((dir = opendir(".\\battery")) != NULL) {
+        cout << "Liste des fichiers disponibles:"<<endl;
         while ((ent = readdir(dir)) != NULL) {
             if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0) {
                 cout << "File " << i++ << ": ";
@@ -460,9 +532,11 @@ string Catalogue::ListeFichiers() const
                 getline(output, lineReader);
                 cout << "|" << lineReader;
                 getline(output,lineReader);
-                cout << "| comportant "<<lineReader<<" Trajets Simples et ";
+                cout << "| "<<lineReader<<" TS et ";
                 getline(output,lineReader);
-                cout<<lineReader<<" Trajets Composes."<<endl;
+                cout<<lineReader<<" TC | ";
+                getline(output,lineReader);
+                cout<<"cree le : "<<lineReader<<"."<<endl;
                 output.close();
                 output.clear();
                 outputName = ".\\battery\\";
@@ -481,7 +555,7 @@ string Catalogue::ListeFichiers() const
         }
     } else {
         //could not open dir
-        perror("Erreur lors de l'ouverture du repertoire");
+        cerr<<"Erreur lors de l'ouverture du repertoire"<<endl;
         return "0";
     }
 
@@ -491,7 +565,8 @@ void Catalogue::MenuChargement()
 {
     string nomFichier;
     int noOp;
-    cout << "Menu Chargement :" << endl;
+    cout << "Menu Chargement" << endl;
+    cout << "----------------------------------------"<<endl;
     nomFichier = ListeFichiers();
     if (nomFichier == "0") {
         return;
