@@ -314,7 +314,93 @@ void Catalogue::ChargementType(string nomFichier, int noOp)
 
 void Catalogue::ChargementCustomCity(string nomFichier)
 {
-
+    ifstream chargement;
+    bool select = true;
+    int nbTrajetsCharges=0;
+    string depart,arrivee;
+    string lineText, lineText2;
+    chargement.open(".\\battery\\" + nomFichier);
+    if (chargement.good()) {
+        cout << "Le fichier a ete ouvert... Execution du chargement." << endl;
+    } else {
+        perror("Le fichier nexiste pas ou est en cours d'utilisation.");
+    }
+    //entree des variables
+    while(select) {
+        select = false;
+        cout << "---------------------------------------------------" << endl;
+        cout << "Veuillez entrer le nom de la ville de depart et/ou la ville d'arrivee - 0 si cela n'importe pas."
+             << endl;
+        cout << "Depart ?" << endl;
+        cin >> depart;
+        cout << "Arrivee ?" << endl;
+        cin >> arrivee;
+        if (depart.compare("0") == 0 && arrivee.compare("0") == 0) {
+            cout<<"Vous n'avez pas entre de ville ou de depart. Veuillez recommencer la saisie."<<endl;
+            select = true;
+        }
+    }
+    //FIN ENTREE, chargement des trajets
+    gotoOPLine(chargement);
+    Parcours *currentParcours = listeTrajets;
+    while (currentParcours->nextParcours != NULL) {
+        currentParcours = currentParcours->nextParcours;
+    }
+    if(arrivee.compare("0")==0){//cas seulement depart est donne
+        while (getline(chargement, lineText)) {
+            if (atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
+                if(depart.compare(getDepartFromString(lineText))==0){
+                    stringToTrajetSimple(lineText);
+                    nbTrajetsCharges++;
+                }
+            }
+            if (atoi(lineText.substr(0, 4).c_str()) > 1000) {
+                getline(chargement, lineText2);
+                if(depart.compare(getDepartFromString(lineText))==0) {
+                    stringToTrajetCompose(lineText, lineText2);
+                    nbTrajetsCharges++;
+                }
+            }
+        }
+        cout<<"fin du chargement, retour au menu principal..."<<endl;
+    }else if(depart.compare("0")==0){//cas seulement arrivee est donnee
+        while (getline(chargement, lineText)) {
+            if (atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
+                if(arrivee.compare(getArriveeFromString(lineText))==0){
+                    stringToTrajetSimple(lineText);
+                    nbTrajetsCharges++;
+                }
+            }
+            if (atoi(lineText.substr(0, 4).c_str()) > 1000) {
+                getline(chargement, lineText2);
+                if(arrivee.compare(getArriveeFromString(lineText))==0) {
+                    stringToTrajetCompose(lineText, lineText2);
+                    nbTrajetsCharges++;
+                }
+            }
+        }
+        cout<<"fin du chargement, retour au menu principal..."<<endl;
+    }else{//cas depart et arrivee sont donnes
+        while (getline(chargement, lineText)) {
+            if (atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
+                if(depart.compare(getDepartFromString(lineText))==0 && arrivee.compare(getArriveeFromString(lineText))==0){
+                    stringToTrajetSimple(lineText);
+                    nbTrajetsCharges++;
+                }
+            }
+            if (atoi(lineText.substr(0, 4).c_str()) > 1000) {
+                getline(chargement, lineText2);
+                if(depart.compare(getDepartFromString(lineText))==0 && arrivee.compare(getArriveeFromString(lineText))==0){
+                    stringToTrajetCompose(lineText, lineText2);
+                    nbTrajetsCharges++;
+                }
+            }
+        }
+        cout<<"fin du chargement, retour au menu principal..."<<endl;
+    }
+    if(nbTrajetsCharges==0){
+        perror("ATTENTION: aucun trajet du fichier ne correspond aux conditions, aucun trajet n'a ete charge.");
+    }
 }
 
 void Catalogue::ChargementCustomID(string nomFichier)
@@ -1052,6 +1138,38 @@ int ***Catalogue::MatriceNomTrajetsInversee()
     return matrixAdj;
 }
 
+string Catalogue::getArriveeFromString(const string st)
+{
+    string arrivee;
+    int i=0;
+    while (st[i] != '|') {
+        i++;
+    }
+    i++;
+    while (st[i] != '|') {
+        i++;
+    }
+    i++;
+    while (i < st.size() && st[i]!='|') {
+        arrivee.push_back(st[i++]);
+    }
+    return arrivee;
+}
+
+string Catalogue::getDepartFromString(const string st)
+{
+    string depart;
+    int i=0;
+    while (st[i] != '|') {
+        i++;
+    }
+    i++;
+    while (st[i] != '|') {
+        depart.push_back(st[i++]);
+    }
+    return depart;
+}
+
 void Catalogue::gotoOPLine(ifstream &input)
 {
     int line = 0;
@@ -1166,6 +1284,8 @@ void Catalogue::stringToTrajetCompose(const string st, const string st2)
     }
     AddToCatalogue(nouveauTrajetCompose);
 }
+
+
 
 
 

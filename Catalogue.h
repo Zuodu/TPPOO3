@@ -63,6 +63,8 @@ public:
 
 protected:
 //----------------------------------------------------- Méthodes protégées
+    string getArriveeFromString(const string st);
+    string getDepartFromString(const string st);
     void stringToTrajetSimple(const string st);
     void stringToTrajetCompose(const string st,const string st2);
     void gotoOPLine(ifstream &input);
