@@ -31,9 +31,12 @@ public:
 	void SauvegardeFonctionVille() const;
 	void SauvegardeIntervalle() const;
 	void MenuSauvegarde() const;
-	void MenuChargement();
+	void ChargementTotal(string);
+    void ChargementType(string,int);
+    void ChargementCustomCity(string);
+    void ChargementCustomID(string);
 	string ListeFichiers() const;
-    void ChargerAjouter(int);
+	void MenuChargement();
     void delete2D(char** table);
     void delete2D(int** table);
     void delete3D(int*** table);
@@ -60,6 +63,11 @@ public:
 
 protected:
 //----------------------------------------------------- Méthodes protégées
+    string getArriveeFromString(const string st);
+    string getDepartFromString(const string st);
+    void stringToTrajetSimple(const string st);
+    void stringToTrajetCompose(const string st,const string st2);
+    void gotoOPLine(ifstream &input);
     int ** MatriceAdjacenceInversee();
     char ** MatriceTrajetsInversee();
     int *** MatriceNomTrajetsInversee();
