@@ -239,7 +239,7 @@ void Catalogue::SauvegardeFonctionVille() const
     cout << "Sauvegarde faite" << endl;
     fichierSortie.close();
 
-	if (departNull== false || arriveeNull == false)
+	if (!departNull || !arriveeNull)
 	{
 		ofstream finEcriture;
 		fichierSortie.open(".\\battery\\" + nomFichier, ios::in);
@@ -1421,9 +1421,4 @@ void Catalogue::stringToTrajetCompose(const string st, const string st2)
     }
     AddToCatalogue(nouveauTrajetCompose);
 }
-
-
-
-
-
 //------------------------------------------------------- Méthodes privées

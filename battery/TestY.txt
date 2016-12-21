@@ -1,9 +1,0 @@
-Cata1
-Ville
-1
-1
-Wed Dec 21 19:50:21 2016
-
-1|A|B|U
-1001|A|C
-|A|B|P|H|C|K
