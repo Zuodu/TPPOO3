@@ -15,9 +15,11 @@ using namespace std;
 #include <cstring>
 #include <ctime>
 #include <chrono>
-#include <vector>
 #include <dirent.h>
 #include <stdlib.h>
+#include <vector>
+#include <algorithm>
+
 #ifdef  LINUX
 #include <sys/stat.h>
 #endif
@@ -39,15 +41,31 @@ void Catalogue::SauvegardeTotale() const
 #ifdef MAP
     cout << "Appel a la methode <SauvegardeTotale>" << endl;
 #endif
-    string nomFichier;
+    string nomFichier,selector;
+    bool nameOk = false;
     cout << "--------------------------------------------" << endl;
-    cout << "Veuillez donner le nom du fichier a utiliser :" << endl;
-    cin >> nomFichier;
-    nomFichier += ".txt";
+    while(!nameOk) {
+        cout << "Veuillez donner le nom du fichier a utiliser :" << endl;
+        cin >> nomFichier;
+        nomFichier += ".txt";
+        if(fileExists("./battery/"+nomFichier)){
+            cerr <<"Le fichier exsite deja, voulez-vous l'ecraser ? (y/n)"<<endl;
+            cin >> selector;
+            if(selector.compare("y")==0){
+                nameOk = true;
+            }
+        }else{
+            nameOk = true;
+        }
+    }
     //recherche de la date actuelle
     time_t date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     ofstream fichierSortie;
     fichierSortie.open("./battery/" + nomFichier);
+    if(!fichierSortie.good()){
+        cerr<<"Acces au fichie refuse, veuillez verifier vos droits ou contactez un admin"<<endl;
+        return;
+    }
 
     //Head
     fichierSortie << nomCatalogue << endl;
@@ -87,7 +105,10 @@ void Catalogue::SauvegardeTypeTrajet() const
     time_t date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     ofstream fichierSortie;
     fichierSortie.open("./battery/" + nomFichier);
-
+    if(!fichierSortie.good()){
+        cerr<<"Acces au fichie refuse, veuillez verifier vos droits ou contactez un admin"<<endl;
+        return;
+    }
     //HeadLine
     fichierSortie << nomCatalogue << endl;
     fichierSortie << "Type" << endl;
@@ -136,11 +157,23 @@ void Catalogue::SauvegardeFonctionVille() const
     int nbTS = 0;
     int nbTC = 0;
 
-    string nomFichier;
+    string nomFichier,selector;
+    bool nameOk = false;
     cout << "--------------------------------------------" << endl;
-    cout << "Veuillez donner le nom du fichier a utiliser :" << endl;
-    cin >> nomFichier;
-    nomFichier += ".txt";
+    while(!nameOk) {
+        cout << "Veuillez donner le nom du fichier a utiliser :" << endl;
+        cin >> nomFichier;
+        nomFichier += ".txt";
+        if(fileExists("./battery/"+nomFichier)){
+            cerr <<"Le fichier exsite deja, voulez-vous l'ecraser ? (y/n)"<<endl;
+            cin >> selector;
+            if(selector.compare("y")==0){
+                nameOk = true;
+            }
+        }else{
+            nameOk = true;
+        }
+    }
     cout << "Veuillez donner la ville de depart des trajets a sauvegarder (1 si cela n'importe pas):" << endl;
     cin >> unDepart;
     cout << "Veuillez donner la ville de d'arrivee des trajets a sauvegarder (1 si cela n'importe pas):" << endl;
@@ -160,7 +193,10 @@ void Catalogue::SauvegardeFonctionVille() const
     time_t date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     ofstream fichierSortie;
     fichierSortie.open("./battery/" + nomFichier);
-
+    if(!fichierSortie.good()){
+        cerr<<"Acces au fichie refuse, veuillez verifier vos droits ou contactez un admin"<<endl;
+        return;
+    }
     //Head
     fichierSortie << nomCatalogue << endl;
     fichierSortie << "Ville" << endl;
@@ -225,6 +261,10 @@ void Catalogue::SauvegardeFonctionVille() const
 
     if (!departNull || !arriveeNull) {
         fichierSortie.open("./battery/" + nomFichier, ios::in);
+        if(fichierSortie.fail()){
+            cerr<<"Acces au fichie refuse, veuillez verifier vos droits ou contactez un admin"<<endl;
+            return;
+        }
         fichierSortie.seekp(14);
         fichierSortie << nbTS << endl << nbTC << endl;
         fichierSortie.close();
@@ -236,15 +276,27 @@ void Catalogue::SauvegardeIntervalle() const
 #ifdef MAP
     cout << "Appel a la methode <SauvegardeIntervalle>" << endl;
 #endif
-    string nomFichier;
     int borneInf;
     int borneSup;
     int nbTS = 0;
     int nbTC = 0;
+    string nomFichier,selector;
+    bool nameOk = false;
     cout << "--------------------------------------------" << endl;
-    cout << "Veuillez donner le nom du fichier a utiliser :" << endl;
-    cin >> nomFichier;
-    nomFichier += ".txt";
+    while(!nameOk) {
+        cout << "Veuillez donner le nom du fichier a utiliser :" << endl;
+        cin >> nomFichier;
+        nomFichier += ".txt";
+        if(fileExists("./battery/"+nomFichier)){
+            cerr <<"Le fichier exsite deja, voulez-vous l'ecraser ? (y/n)"<<endl;
+            cin >> selector;
+            if(selector.compare("y")==0){
+                nameOk = true;
+            }
+        }else{
+            nameOk = true;
+        }
+    }
     AfficherCatalogue();
     cout << "--------------------------------------------" << endl;
     cout
@@ -264,8 +316,11 @@ void Catalogue::SauvegardeIntervalle() const
     time_t date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     ofstream fichierSortie;
     fichierSortie.open("./battery/" + nomFichier);
-
-    //HeadLine
+    if(!fichierSortie.good()){
+        cerr<<"Acces au fichie refuse, veuillez verifier vos droits ou contactez un admin"<<endl;
+        return;
+    }
+    //Head
     fichierSortie << nomCatalogue << endl;
     fichierSortie << "Intervalle" << endl;
     fichierSortie << "0" << endl;
@@ -291,6 +346,10 @@ void Catalogue::SauvegardeIntervalle() const
     fichierSortie.close();
     fichierSortie.flush();
     fichierSortie.open("./battery/" + nomFichier, ios::in);
+    if(!fichierSortie.good()){
+        cerr<<"Acces au fichie refuse, veuillez verifier vos droits ou contactez un admin"<<endl;
+        return;
+    }
     fichierSortie.seekp(19);
     fichierSortie << nbTS << endl << nbTC << endl;
     fichierSortie.close();
@@ -303,6 +362,9 @@ void Catalogue::MenuSauvegarde() const
 #endif
     int choix;
     cout << "--------------------------------------------" << endl;
+    if(idTS==1 && idTC ==1001){
+        cerr<<"WARNING : le catalogue est vide !"<<endl;
+    }
     cout << "Quel type de sauvegarde voulez vous faire ?" << endl;
     cout << "1: Sauvegarde totale." << endl;
     cout << "2: Sauvegarder uniquement un type de trajet (Simple ou Compose)." << endl;
@@ -339,7 +401,8 @@ void Catalogue::ChargementType(string nomFichier, int noOp)
     if (chargement.good()) {
         cout << "Le fichier a ete ouvert... Execution du chargement." << endl;
     } else {
-        cerr << "Le fichier nexiste pas ou est en cours d'utilisation." << endl;
+        cerr << "Le fichier n'existe pas,est en cours d'utilisation, ou vous n'avez pas les droits. Contactez un admin." << endl;
+        return;
     }
     // remplacement partiel du catalogue selon ts ou tc
     gotoOPLine(chargement);
@@ -374,7 +437,8 @@ void Catalogue::ChargementCustomCity(string nomFichier)
     if (chargement.good()) {
         cout << "Le fichier a ete ouvert... Execution du chargement." << endl;
     } else {
-        cerr << "Le fichier nexiste pas ou est en cours d'utilisation." << endl;
+        cerr << "Le fichier n'existe pas,est en cours d'utilisation, ou vous n'avez pas les droits. Contactez un admin." << endl;
+        return;
     }
     //entree des variables
     while (select) {
@@ -472,7 +536,8 @@ void Catalogue::ChargementCustomID(string nomFichier)
     if (chargement.good()) {
         cout << "Le fichier a ete ouvert... Execution du chargement." << endl;
     } else {
-        cerr << "Le fichier nexiste pas ou est en cours d'utilisation." << endl;
+        cerr << "Le fichier n'existe pas,est en cours d'utilisation, ou vous n'avez pas les droits. Contactez un admin." << endl;
+        return;
     }
     cout << "--------------------------------------------" << endl;
     cout << "AFFICHAGE DES TRAJETS DU FICHIER :"
@@ -553,7 +618,8 @@ void Catalogue::ChargementTotal(string nomFichier)
     if (chargement.good()) {
         cout << "Le fichier a ete ouvert" << endl;
     } else {
-        cerr << "Le fichier nexiste pas ou est en cours d'utilisation" << endl;
+        cerr << "Le fichier n'existe pas,est en cours d'utilisation, ou vous n'avez pas les droits. Contactez un admin." << endl;
+        return;
     }
     // remplacement total du catalogue
     gotoOPLine(chargement);
@@ -584,6 +650,7 @@ string Catalogue::ListeFichiers() const
     int i = 1;
     ifstream output;
     vector <string> fileNames;
+    vector <int> blacklist;
     string outputName("./battery/");
     string lineReader;
     DIR *dir;
@@ -599,16 +666,21 @@ string Catalogue::ListeFichiers() const
                 outputName.append(ent->d_name);
                 fileNames.push_back(outputName);
                 output.open(outputName);
-                getline(output, lineReader);
-                cout << "|" << lineReader;
-                getline(output, lineReader);
-                cout << "|" << lineReader;
-                getline(output, lineReader);
-                cout << "| " << lineReader << " TS et ";
-                getline(output, lineReader);
-                cout << lineReader << " TC | ";
-                getline(output, lineReader);
-                cout << "cree le : " << lineReader << "." << endl;
+                if (!output.good()) {
+                    cout << " : Ce fichier n'existe pas,est en cours d'utilisation, ou vous n'avez pas les droits." << endl;
+                    blacklist.push_back(i-1);
+                }else {
+                    getline(output, lineReader);
+                    cout << "|" << lineReader;
+                    getline(output, lineReader);
+                    cout << "|" << lineReader;
+                    getline(output, lineReader);
+                    cout << "| " << lineReader << " TS et ";
+                    getline(output, lineReader);
+                    cout << lineReader << " TC | ";
+                    getline(output, lineReader);
+                    cout << "cree le : " << lineReader << "." << endl;
+                }
                 output.close();
                 output.clear();
                 outputName = "./battery/";
@@ -620,7 +692,11 @@ string Catalogue::ListeFichiers() const
             cout << "--------------------------------------------" << endl;
             cout << "Veuillez indiquer le numero du catalogue a charger :" << endl;
             cin >> fileID;
-            return fileNames[fileID - 1];
+            if(find(blacklist.begin(), blacklist.end(), fileID) != blacklist.end()){
+                cerr<<"Desole, ce fichier n'est pas accessible. Retour au menu."<<endl;
+                return "0";
+            }
+            return fileNames[fileID-1];
         } else {
             cout << "Aucun Catalogue a charger. Retour au menu..." << endl;
             cout << "--------------------------------------------" << endl;
@@ -632,7 +708,6 @@ string Catalogue::ListeFichiers() const
         cout << "--------------------------------------------" << endl;
         return "0";
     }
-
 }
 
 void Catalogue::MenuChargement()
@@ -1153,8 +1228,6 @@ void Catalogue::MenuCatalogue()
 #ifdef MAP
     cout << "Appel a la methode <MenuCatalogue>" << endl;
 #endif
-    bool sortie = false;
-    int choix = 0;
 #ifdef LINUX
     if (mkdir("battery",0777) == 0) {
         cout << "dossier battery cree." << endl;
@@ -1169,6 +1242,8 @@ void Catalogue::MenuCatalogue()
         cout << "battery dir deja existant ou nest pas accessible." << endl;
     }
 #endif
+    bool sortie = false;
+    int choix = 0;
     while (!sortie) {
         cout << "              MENU PRINCIPAL                "<< endl;
         cout << "--------------------------------------------" << endl;
@@ -1470,5 +1545,14 @@ void Catalogue::stringToTrajetCompose(const string st, const string st2)
         transport.clear();
     }
     AddToCatalogue(nouveauTrajetCompose);
+}
+
+bool Catalogue::fileExists(const string st) const
+{
+#ifdef MAP
+    cout << "Appel a la methode <fileExists>" << endl;
+#endif
+    ifstream f(st.c_str());
+    return f.good();
 }
 //------------------------------------------------------- Méthodes privées

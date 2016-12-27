@@ -1,9 +1,7 @@
 using namespace std;
 #include <iostream>
-#include <string>
 #include "Catalogue.h"
 #include <cstring>
-#include <stdlib.h>
 
 const int MAXL = 5;
 
@@ -20,7 +18,6 @@ void initCatalogue()
 
 int main()
 {
-	initCatalogue();
-
+    initCatalogue();
     return 0;
 }

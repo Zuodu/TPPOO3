@@ -66,6 +66,7 @@ protected:
 //----------------------------------------------------- Méthodes protégées
     string getArriveeFromString(const string st);
     string getDepartFromString(const string st);
+    bool fileExists (const string st) const;
     void stringToTrajetSimple(const string st);
     void stringToTrajetCompose(const string st,const string st2);
     void gotoOPLine(ifstream &input);
