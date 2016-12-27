@@ -1,9 +1,8 @@
 /*************************************************************************
                            Catalogue  -  description
                              -------------------
-    début                : $DATE$
-    copyright            : (C) $YEAR$ par $AUTHOR$
-    e-mail               : $EMAIL$
+    début                : Decembre 2016
+    copyright            : (C) 2016 par Yohan GRACIA et Zifan YAO
 *************************************************************************/
 
 //---------- Réalisation de la classe <Catalogue> (fichier Catalogue.cpp) ------------
@@ -14,14 +13,14 @@
 using namespace std;
 #include <iostream>
 #include <cstring>
-#include <string>
-#include <fstream>
 #include <ctime>
 #include <chrono>
 #include <vector>
 #include <dirent.h>
-#include <direct.h>
 #include <stdlib.h>
+#ifdef  LINUX
+#include <sys/stat.h>
+#endif
 //------------------------------------------------------ Include personnel
 #include "Catalogue.h"
 //------------------------------------------------------------- Constantes
@@ -29,6 +28,7 @@ const int LG = 20;
 const int TCstart = 1000;
 const int maxMemeTrajet = 5;
 const int fileTSStartingLine = 6;
+
 //---------------------------------------------------- Variables de classe
 //----------------------------------------------------------- Types privés
 //----------------------------------------------------------------- PUBLIC
@@ -36,15 +36,20 @@ const int fileTSStartingLine = 6;
 //----------------------------------------------------- Méthodes publiques
 void Catalogue::SauvegardeTotale() const
 {
+#ifdef MAP
+    cout << "Appel a la methode <SauvegardeTotale>" << endl;
+#endif
     string nomFichier;
+    cout << "--------------------------------------------" << endl;
     cout << "Veuillez donner le nom du fichier a utiliser :" << endl;
     cin >> nomFichier;
     nomFichier += ".txt";
+    //recherche de la date actuelle
     time_t date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     ofstream fichierSortie;
-    fichierSortie.open(".\\battery\\" + nomFichier);
+    fichierSortie.open("./battery/" + nomFichier);
 
-    //HeadLine
+    //Head
     fichierSortie << nomCatalogue << endl;
     fichierSortie << "Totale" << endl;
     fichierSortie << idTS - 1 << endl;
@@ -52,18 +57,22 @@ void Catalogue::SauvegardeTotale() const
     fichierSortie << ctime(&date) << endl;
     //Trajets
     Parcours *currentParcours = listeTrajets;
-    while (currentParcours->nextParcours != NULL)
-	{
+    while (currentParcours->nextParcours != NULL) {
         currentParcours = currentParcours->nextParcours;
         currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
     }
     cout << "Sauvegarde faite" << endl;
+    cout << "--------------------------------------------" << endl;
     fichierSortie.close();
 }
 
 void Catalogue::SauvegardeTypeTrajet() const
 {
+#ifdef MAP
+    cout << "Appel a la methode <SauvegardeTypeTrajet>" << endl;
+#endif
     string nomFichier;
+    cout << "--------------------------------------------" << endl;
     cout << "Veuillez donner le nom du fichier a utiliser :" << endl;
     cin >> nomFichier;
     nomFichier += ".txt";
@@ -77,61 +86,58 @@ void Catalogue::SauvegardeTypeTrajet() const
     } while (typeTrajet.compare("S") != 0 && typeTrajet.compare("C") != 0);
     time_t date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     ofstream fichierSortie;
-    fichierSortie.open(".\\battery\\" + nomFichier);
+    fichierSortie.open("./battery/" + nomFichier);
 
     //HeadLine
     fichierSortie << nomCatalogue << endl;
     fichierSortie << "Type" << endl;
-	if (typeTrajet.compare("S") == 0)
-	{
-		fichierSortie << idTS - 1 << endl;
-		fichierSortie << "0" << endl;
-	}
-	else
-	{
-		fichierSortie << "0" << endl;
-		fichierSortie << idTC - TCstart - 1 << endl;
-	}
+    if (typeTrajet.compare("S") == 0) {
+        fichierSortie << idTS - 1 << endl;
+        fichierSortie << "0" << endl;
+    } else {
+        fichierSortie << "0" << endl;
+        fichierSortie << idTC - TCstart - 1 << endl;
+    }
     fichierSortie << ctime(&date) << endl;
 
     Parcours *currentParcours = listeTrajets;
-	//Trajets Simples
-    if (typeTrajet.compare("S") == 0)
-	{
-        while (currentParcours->nextParcours != NULL)
-		{
+    //Trajets Simples
+    if (typeTrajet.compare("S") == 0) {
+        while (currentParcours->nextParcours != NULL) {
             currentParcours = currentParcours->nextParcours;
-            if (currentParcours->trajetAssocie->id <= TCstart)
-			{
+            if (currentParcours->trajetAssocie->id <= TCstart) {
                 currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
             }
         }
     } else {
         //Trajets composés
-        while (currentParcours->nextParcours != NULL)
-		{
+        while (currentParcours->nextParcours != NULL) {
             currentParcours = currentParcours->nextParcours;
-            if (currentParcours->trajetAssocie->id > TCstart)
-			{
+            if (currentParcours->trajetAssocie->id > TCstart) {
                 currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
             }
         }
     }
 
     cout << "Sauvegarde faite" << endl;
+    cout << "--------------------------------------------" << endl;
     fichierSortie.close();
 }
 
 void Catalogue::SauvegardeFonctionVille() const
 {
+#ifdef MAP
+    cout << "Appel a la methode <SauvegardeFonctionVille>" << endl;
+#endif
     char unDepart[LG];
     char uneArrivee[LG];
     bool departNull = false;
     bool arriveeNull = false;
-	int nbTS = 0;
-	int nbTC = 0;
+    int nbTS = 0;
+    int nbTC = 0;
 
     string nomFichier;
+    cout << "--------------------------------------------" << endl;
     cout << "Veuillez donner le nom du fichier a utiliser :" << endl;
     cin >> nomFichier;
     nomFichier += ".txt";
@@ -144,190 +150,166 @@ void Catalogue::SauvegardeFonctionVille() const
     //copie des attributs
     strcpy(depart, unDepart);
     strcpy(arrivee, uneArrivee);
-    if (strcmp(depart, "1") == 0)
-	{
+    if (strcmp(depart, "1") == 0) {
         departNull = true;
     }
-    if (strcmp(arrivee, "1") == 0)
-	{
+    if (strcmp(arrivee, "1") == 0) {
         arriveeNull = true;
     }
     //Chrono et ouverture du fichier
     time_t date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     ofstream fichierSortie;
-    fichierSortie.open(".\\battery\\" + nomFichier);
+    fichierSortie.open("./battery/" + nomFichier);
 
-    //HeadLine
+    //Head
     fichierSortie << nomCatalogue << endl;
     fichierSortie << "Ville" << endl;
-	if (departNull && arriveeNull)
-	{
-		fichierSortie << idTS - 1 << endl;
-		fichierSortie << idTC - TCstart - 1 << endl;
-	}
-	else
-	{
-		fichierSortie << "0" << endl;
-		fichierSortie << "0" << endl;
-	}
+    if (departNull && arriveeNull) {
+        fichierSortie << idTS - 1 << endl;
+        fichierSortie << idTC - TCstart - 1 << endl;
+    } else {
+        fichierSortie << "0" << endl;
+        fichierSortie << "0" << endl;
+    }
     fichierSortie << ctime(&date) << endl;
 
     Parcours *currentParcours = listeTrajets;
-	//Sauvegarde totale
-    if (departNull && arriveeNull)
-	{
-        while (currentParcours->nextParcours != NULL)
-		{
+    //Sauvegarde totale
+    if (departNull && arriveeNull) {
+        while (currentParcours->nextParcours != NULL) {
             currentParcours = currentParcours->nextParcours;
             currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
         }//Sauvegarde en fonction de l'arrivée
-    } else if (departNull)
-	{
-        while (currentParcours->nextParcours != NULL)
-		{
+    } else if (departNull) {
+        while (currentParcours->nextParcours != NULL) {
             currentParcours = currentParcours->nextParcours;
-            if (currentParcours->trajetAssocie->comparerArrivee(arrivee))
-			{
+            if (currentParcours->trajetAssocie->comparerArrivee(arrivee)) {
                 currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
-				if (currentParcours->trajetAssocie->id <= TCstart)
-				{
-					nbTS++;
-				}
-				else
-				{
-					nbTC++;
-				}
+                if (currentParcours->trajetAssocie->id <= TCstart) {
+                    nbTS++;
+                } else {
+                    nbTC++;
+                }
             }
         } //Sauvegarde en fonction du départ
-    } else if (arriveeNull)
-	{
-        while (currentParcours->nextParcours != NULL)
-		{
+    } else if (arriveeNull) {
+        while (currentParcours->nextParcours != NULL) {
             currentParcours = currentParcours->nextParcours;
-            if (currentParcours->trajetAssocie->comparerDepart(depart))
-			{
+            if (currentParcours->trajetAssocie->comparerDepart(depart)) {
                 currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
-				if (currentParcours->trajetAssocie->id <= TCstart)
-				{
-					nbTS++;
-				}
-				else
-				{
-					nbTC++;
-				}
+                if (currentParcours->trajetAssocie->id <= TCstart) {
+                    nbTS++;
+                } else {
+                    nbTC++;
+                }
             }
         }
     } else //Sauvegarde en fonction du départ et de l'arrivée
-	{
-        while (currentParcours->nextParcours != NULL)
-		{
+    {
+        while (currentParcours->nextParcours != NULL) {
             currentParcours = currentParcours->nextParcours;
-            if (currentParcours->trajetAssocie->comparerTrajet(depart, arrivee))
-			{
+            if (currentParcours->trajetAssocie->comparerTrajet(depart, arrivee)) {
                 currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
-				if (currentParcours->trajetAssocie->id <= TCstart)
-				{
-					nbTS++;
-				}
-				else
-				{
-					nbTC++;
-				}
+                if (currentParcours->trajetAssocie->id <= TCstart) {
+                    nbTS++;
+                } else {
+                    nbTC++;
+                }
             }
         }
     }
     cout << "Sauvegarde faite" << endl;
+    cout << "--------------------------------------------" << endl;
     fichierSortie.close();
+    fichierSortie.flush();
 
-	if (!departNull || !arriveeNull)
-	{
-		ofstream finEcriture;
-		fichierSortie.open(".\\battery\\" + nomFichier, ios::in);
-		fichierSortie.seekp(14);
-		fichierSortie << nbTS << endl << nbTC << endl;
-		fichierSortie.close();
-	}
+    if (!departNull || !arriveeNull) {
+        fichierSortie.open("./battery/" + nomFichier, ios::in);
+        fichierSortie.seekp(14);
+        fichierSortie << nbTS << endl << nbTC << endl;
+        fichierSortie.close();
+    }
 }
 
 void Catalogue::SauvegardeIntervalle() const
 {
-	string nomFichier;
-	int borneInf;
-	int borneSup;
-	int nbTS = 0;
-	int nbTC = 0;
-	cout << "Veuillez donner le nom du fichier a utiliser :" << endl;
-	cin >> nomFichier;
-	nomFichier += ".txt";
-	AfficherCatalogue();
-	cout << "Veuillez rentrer l'intervalle des trajets que vous voulez sauvegarder (borne inferieure puis borne superieure, separees par un saut de ligne) :" << endl;
-	do {
-		cin >> borneInf;
-		cin >> borneSup;
-		if (borneInf <= 0)
-		{
-			cout << "Veuillez rentrer une borne strictement positive" << endl;
-		}
-		else if (borneInf > borneSup)
-		{
-			cout << "Veuillez rentrer les bornes dans le bon sens " << endl;
-		}
-		else if (borneSup > idTS + idTC - TCstart - 2)
-		{
-			cout << "Veuillez rentrer une borne superieure inferieure au nombre de trajet du catalogue" << endl;
-		}
-	} while (borneInf > borneSup || borneInf <= 0 || borneSup > idTS + idTC - TCstart - 2);
-	time_t date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-	ofstream fichierSortie;
-	fichierSortie.open(".\\battery\\" + nomFichier);
+#ifdef MAP
+    cout << "Appel a la methode <SauvegardeIntervalle>" << endl;
+#endif
+    string nomFichier;
+    int borneInf;
+    int borneSup;
+    int nbTS = 0;
+    int nbTC = 0;
+    cout << "--------------------------------------------" << endl;
+    cout << "Veuillez donner le nom du fichier a utiliser :" << endl;
+    cin >> nomFichier;
+    nomFichier += ".txt";
+    AfficherCatalogue();
+    cout << "--------------------------------------------" << endl;
+    cout
+            << "Veuillez rentrer l'intervalle des trajets que vous voulez sauvegarder (borne inferieure puis borne "
+                    "superieure, separees par un saut de ligne) :" << endl;
+    do {
+        cin >> borneInf;
+        cin >> borneSup;
+        if (borneInf <= 0) {
+            cout << "Veuillez rentrer une borne strictement positive" << endl;
+        } else if (borneInf > borneSup) {
+            cout << "Veuillez rentrer les bornes dans le bon sens " << endl;
+        } else if (borneSup > idTS + idTC - TCstart - 2) {
+            cout << "Veuillez rentrer une borne superieure inferieure au nombre de trajet du catalogue" << endl;
+        }
+    } while (borneInf > borneSup || borneInf <= 0 || borneSup > idTS + idTC - TCstart - 2);
+    time_t date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    ofstream fichierSortie;
+    fichierSortie.open("./battery/" + nomFichier);
 
-	//HeadLine
-	fichierSortie << nomCatalogue << endl;
-	fichierSortie << "Intervalle" << endl;
-	fichierSortie << "0" << endl;
-	fichierSortie << "0" << endl;
-	fichierSortie << ctime(&date) << endl;
-	//Trajets
-	Parcours *currentParcours = listeTrajets;
-	int compteur = 1;
-	while (currentParcours->nextParcours != NULL)
-	{
-		currentParcours = currentParcours->nextParcours;
-		if (compteur>=borneInf && compteur <= borneSup)
-		{
-			currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
-			if (currentParcours->trajetAssocie->id<=TCstart)
-			{
-				nbTS++;
-			}
-			else
-			{
-				nbTC++;
-			}
-		}
-		compteur++;
-	}
-	cout << "Sauvegarde faite" << endl;
-	fichierSortie.close();
-
-	ofstream finEcriture;
-	fichierSortie.open(".\\battery\\" + nomFichier, ios::in);
-	fichierSortie.seekp(19);
-	fichierSortie << nbTS << endl << nbTC << endl;
-	fichierSortie.close();
+    //HeadLine
+    fichierSortie << nomCatalogue << endl;
+    fichierSortie << "Intervalle" << endl;
+    fichierSortie << "0" << endl;
+    fichierSortie << "0" << endl;
+    fichierSortie << ctime(&date) << endl;
+    //Trajets
+    Parcours *currentParcours = listeTrajets;
+    int compteur = 1;
+    while (currentParcours->nextParcours != NULL) {
+        currentParcours = currentParcours->nextParcours;
+        if (compteur >= borneInf && compteur <= borneSup) {
+            currentParcours->trajetAssocie->sauvegardeTrajet(fichierSortie);
+            if (currentParcours->trajetAssocie->id <= TCstart) {
+                nbTS++;
+            } else {
+                nbTC++;
+            }
+        }
+        compteur++;
+    }
+    cout << "Sauvegarde faite" << endl;
+    cout << "--------------------------------------------" << endl;
+    fichierSortie.close();
+    fichierSortie.flush();
+    fichierSortie.open("./battery/" + nomFichier, ios::in);
+    fichierSortie.seekp(19);
+    fichierSortie << nbTS << endl << nbTC << endl;
+    fichierSortie.close();
 }
 
 void Catalogue::MenuSauvegarde() const
 {
+#ifdef MAP
+    cout << "Appel a la methode <MenuSauvegarde>" << endl;
+#endif
     int choix;
+    cout << "--------------------------------------------" << endl;
     cout << "Quel type de sauvegarde voulez vous faire ?" << endl;
     cout << "1: Sauvegarde totale." << endl;
     cout << "2: Sauvegarder uniquement un type de trajet (Simple ou Compose)." << endl;
     cout << "3: Sauvegarder les trajets en fonction de ville de depart et/ou arrivee." << endl;
     cout << "4: Sauvegarder un intervalle de trajet (d'un Trajet A a un Trajet B)." << endl;
     cin >> choix;
-    switch (choix)
-	{
+    switch (choix) {
         case 1:
             SauvegardeTotale();
             break;
@@ -342,18 +324,22 @@ void Catalogue::MenuSauvegarde() const
             break;
         default:
             cout << "Cette option n'est pas disponible, retour au menu principal" << endl;
+            cout << "--------------------------------------------" << endl;
     }
 }
 
 void Catalogue::ChargementType(string nomFichier, int noOp)
 {
+#ifdef MAP
+    cout << "Appel a la methode <ChargementType>" << endl;
+#endif
     ifstream chargement;
     string lineText, lineText2;
-    chargement.open(".\\battery\\" + nomFichier);
+    chargement.open("./battery/" + nomFichier);
     if (chargement.good()) {
         cout << "Le fichier a ete ouvert... Execution du chargement." << endl;
     } else {
-        cerr<<"Le fichier nexiste pas ou est en cours d'utilisation."<<endl;
+        cerr << "Le fichier nexiste pas ou est en cours d'utilisation." << endl;
     }
     // remplacement partiel du catalogue selon ts ou tc
     gotoOPLine(chargement);
@@ -363,34 +349,37 @@ void Catalogue::ChargementType(string nomFichier, int noOp)
     }
 
     while (getline(chargement, lineText)) {
-        if (noOp==2 && atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
+        if (noOp == 2 && atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
             stringToTrajetSimple(lineText);
         }
-        if (noOp ==3 && atoi(lineText.substr(0, 4).c_str()) > 1000) {
+        if (noOp == 3 && atoi(lineText.substr(0, 4).c_str()) > 1000) {
             getline(chargement, lineText2);
             stringToTrajetCompose(lineText, lineText2);
         }
     }
-    cout<<"Chargement termine. Retour au Menu."<<endl<<"-------------------------------------------------------"<<endl;
+    cout << "Chargement termine. Retour au Menu." << endl <<"--------------------------------------------" << endl;
 }
 
 void Catalogue::ChargementCustomCity(string nomFichier)
 {
+#ifdef MAP
+    cout << "Appel a la methode <ChargementCustomCity>" << endl;
+#endif
     ifstream chargement;
     bool select = true;
-    int nbTrajetsCharges=0;
-    string depart,arrivee;
+    int nbTrajetsCharges = 0;
+    string depart, arrivee;
     string lineText, lineText2;
-    chargement.open(".\\battery\\" + nomFichier);
+    chargement.open("./battery/" + nomFichier);
     if (chargement.good()) {
         cout << "Le fichier a ete ouvert... Execution du chargement." << endl;
     } else {
-        cerr<<"Le fichier nexiste pas ou est en cours d'utilisation."<<endl;
+        cerr << "Le fichier nexiste pas ou est en cours d'utilisation." << endl;
     }
     //entree des variables
-    while(select) {
+    while (select) {
         select = false;
-        cout << "---------------------------------------------------" << endl;
+        cout << "--------------------------------------------" << endl;
         cout << "Veuillez entrer le nom de la ville de depart et/ou la ville d'arrivee - 0 si cela n'importe pas."
              << endl;
         cout << "Depart ?" << endl;
@@ -398,7 +387,7 @@ void Catalogue::ChargementCustomCity(string nomFichier)
         cout << "Arrivee ?" << endl;
         cin >> arrivee;
         if (depart.compare("0") == 0 && arrivee.compare("0") == 0) {
-            cout<<"Vous n'avez pas entre de ville ou de depart. Veuillez recommencer la saisie."<<endl;
+            cout << "Vous n'avez pas entre de ville ou de depart. Veuillez recommencer la saisie." << endl;
             select = true;
         }
     }
@@ -408,107 +397,118 @@ void Catalogue::ChargementCustomCity(string nomFichier)
     while (currentParcours->nextParcours != NULL) {
         currentParcours = currentParcours->nextParcours;
     }
-    if(arrivee.compare("0")==0){//cas seulement depart est donne
+    if (arrivee.compare("0") == 0) {//cas seulement depart est donne
         while (getline(chargement, lineText)) {
             if (atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
-                if(depart.compare(getDepartFromString(lineText))==0){
+                if (depart.compare(getDepartFromString(lineText)) == 0) {
                     stringToTrajetSimple(lineText);
                     nbTrajetsCharges++;
                 }
             }
             if (atoi(lineText.substr(0, 4).c_str()) > 1000) {
                 getline(chargement, lineText2);
-                if(depart.compare(getDepartFromString(lineText))==0) {
+                if (depart.compare(getDepartFromString(lineText)) == 0) {
                     stringToTrajetCompose(lineText, lineText2);
                     nbTrajetsCharges++;
                 }
             }
         }
-        cout<<"fin du chargement, retour au menu principal..."<<endl;
-    }else if(depart.compare("0")==0){//cas seulement arrivee est donnee
+        cout <<"fin du chargement, retour au menu principal..."<<endl<<"--------------------------------------------" << endl;
+    } else if (depart.compare("0") == 0) {//cas seulement arrivee est donnee
         while (getline(chargement, lineText)) {
             if (atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
-                if(arrivee.compare(getArriveeFromString(lineText))==0){
+                if (arrivee.compare(getArriveeFromString(lineText)) == 0) {
                     stringToTrajetSimple(lineText);
                     nbTrajetsCharges++;
                 }
             }
             if (atoi(lineText.substr(0, 4).c_str()) > 1000) {
                 getline(chargement, lineText2);
-                if(arrivee.compare(getArriveeFromString(lineText))==0) {
+                if (arrivee.compare(getArriveeFromString(lineText)) == 0) {
                     stringToTrajetCompose(lineText, lineText2);
                     nbTrajetsCharges++;
                 }
             }
         }
-        cout<<"fin du chargement, retour au menu principal..."<<endl;
-    }else{//cas depart et arrivee sont donnes
+        cout << "fin du chargement, retour au menu principal..."<<endl<< "--------------------------------------------" << endl;
+    } else {//cas depart et arrivee sont donnes
         while (getline(chargement, lineText)) {
             if (atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
-                if(depart.compare(getDepartFromString(lineText))==0 && arrivee.compare(getArriveeFromString(lineText))==0){
+                if (depart.compare(getDepartFromString(lineText)) == 0 &&
+                    arrivee.compare(getArriveeFromString(lineText)) == 0) {
                     stringToTrajetSimple(lineText);
                     nbTrajetsCharges++;
                 }
             }
             if (atoi(lineText.substr(0, 4).c_str()) > 1000) {
                 getline(chargement, lineText2);
-                if(depart.compare(getDepartFromString(lineText))==0 && arrivee.compare(getArriveeFromString(lineText))==0){
+                if (depart.compare(getDepartFromString(lineText)) == 0 &&
+                    arrivee.compare(getArriveeFromString(lineText)) == 0) {
                     stringToTrajetCompose(lineText, lineText2);
                     nbTrajetsCharges++;
                 }
             }
         }
-        cout<<"fin du chargement, retour au menu principal..."<<endl;
+        cout << "fin du chargement, retour au menu principal..." << endl<< "--------------------------------------------" << endl;
     }
-    if(nbTrajetsCharges==0){
-        cerr<<"ATTENTION: aucun trajet du fichier ne correspond aux conditions, aucun trajet n'a ete charge."<<endl;
+    if (nbTrajetsCharges == 0) {
+        cerr << "ATTENTION: aucun trajet du fichier ne correspond aux conditions, aucun trajet n'a ete charge." << endl;
+        cout << "--------------------------------------------" << endl;
     }
 }
 
 void Catalogue::ChargementCustomID(string nomFichier)
 {
+#ifdef MAP
+    cout << "Appel a la methode <ChargementCustomID>" << endl;
+#endif
     int IDSvg = 1;
-    int debut=0,fin=1,nbTrajetsCharges = 0;
+    size_t debutAffTrajet;
+    int debut = 0, fin = 1, nbTrajetsCharges = 0;
     bool select = true;
     ifstream chargement;
-    string lineText, lineText2,response;
-    chargement.open(".\\battery\\" + nomFichier);
+    string lineText, lineText2, response;
+    chargement.open("./battery/" + nomFichier);
     if (chargement.good()) {
         cout << "Le fichier a ete ouvert... Execution du chargement." << endl;
     } else {
-        cerr<<"Le fichier nexiste pas ou est en cours d'utilisation."<<endl;
+        cerr << "Le fichier nexiste pas ou est en cours d'utilisation." << endl;
     }
-    cout <<"------------------------------------------------------"<<endl<<"AFFICHAGE DES TRAJETS DU FICHIER :"<<endl;
+    cout << "--------------------------------------------" << endl;
+    cout << "AFFICHAGE DES TRAJETS DU FICHIER :"
+         << endl;
     gotoOPLine(chargement);
     while (getline(chargement, lineText)) {
         if (atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
-            cout << IDSvg++ << " : Trajet Simple " << lineText<<endl;
+            debutAffTrajet =lineText.find("|");
+            cout << IDSvg++ << " : Trajet Simple " << lineText.substr(debutAffTrajet) << "|"<< endl;
         }
         if (atoi(lineText.substr(0, 4).c_str()) > 1000) {
             getline(chargement, lineText2);
-            cout << IDSvg++ << " : Trajet Compose " << lineText <<"   Avec : " << lineText2 <<endl;
+            debutAffTrajet =lineText.find("|");
+            cout << IDSvg++ << " : Trajet Compose " << lineText.substr(debutAffTrajet) << "   Avec : " << lineText2 << "|"<<endl;
         }
     }
     chargement.clear();
     //FIN AFFICHAGE
-    while(select) {
+    while (select) {
         select = false;
-        cout << "---------------------------------" << endl << "Quels trajets choisir ?" << endl;
+        cout << "--------------------------------------------" << endl << "Quels trajets choisir ?" << endl;
         cout << "De ?" << endl;
         cin >> debut;
         cout << "A ?" << endl;
         cin >> fin;
-        if(debut < 1){
-            cerr<<"ATTENTION : Le debut de l'intervalle  est plus petit que 1 ! Recommencez la saisie"<<endl;
-            select  = true;
+        if (debut < 1) {
+            cerr << "ATTENTION : Le debut de l'intervalle  est plus petit que 1 ! Recommencez la saisie" << endl;
+            select = true;
         }
-        if(fin>IDSvg-1){
+        if (fin > IDSvg - 1) {
             cerr<<"ATTENTION : la fin de l'intervalle depasse le nombre total de trajet, se limiter au dernier trajet ?"
-                           "Y pour oui, N pour recommencer la saisie. (Y/N)"<<endl;
+                            "Y pour oui, N pour recommencer la saisie. (Y/N)" << endl;
             cin >> response;
-            if(response.compare("Y")==0){
-                fin = IDSvg-1;
-            }else{
+            if (response.compare("Y") == 0) {
+                fin = IDSvg - 1;
+            } else {
                 select = true;
             }
         }
@@ -522,7 +522,7 @@ void Catalogue::ChargementCustomID(string nomFichier)
     }
     while (getline(chargement, lineText)) {
         if (atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
-            if(IDSvg>=debut && IDSvg<=fin){
+            if (IDSvg >= debut && IDSvg <= fin) {
                 stringToTrajetSimple(lineText);
                 nbTrajetsCharges++;
             }
@@ -530,26 +530,30 @@ void Catalogue::ChargementCustomID(string nomFichier)
         }
         if (atoi(lineText.substr(0, 4).c_str()) > 1000) {
             getline(chargement, lineText2);
-            if(IDSvg>=debut && IDSvg<=fin){
-                stringToTrajetCompose(lineText,lineText2);
+            if (IDSvg >= debut && IDSvg <= fin) {
+                stringToTrajetCompose(lineText, lineText2);
                 nbTrajetsCharges++;
             }
             IDSvg++;
         }
     }//END OF CHARGEMENT
-    cout<<"fin du chargement, "<<nbTrajetsCharges<<" Trajets ont ete charges, retour au menu principal..."<<endl;
-    cout <<"---------------------------------------------------"<<endl;
+    cout << "fin du chargement, " << nbTrajetsCharges << " Trajets ont ete charges, retour au menu principal..."
+         << endl;
+    cout << "--------------------------------------------" << endl;
 }
 
 void Catalogue::ChargementTotal(string nomFichier)
 {
+#ifdef MAP
+    cout << "Appel a la methode <ChargementTotal>" << endl;
+#endif
     ifstream chargement;
     string lineText, lineText2;
-    chargement.open(".\\battery\\" + nomFichier);
+    chargement.open("./battery/" + nomFichier);
     if (chargement.good()) {
         cout << "Le fichier a ete ouvert" << endl;
     } else {
-        cerr<<"Le fichier nexiste pas ou est en cours d'utilisation"<<endl;
+        cerr << "Le fichier nexiste pas ou est en cours d'utilisation" << endl;
     }
     // remplacement total du catalogue
     gotoOPLine(chargement);
@@ -566,22 +570,28 @@ void Catalogue::ChargementTotal(string nomFichier)
             stringToTrajetCompose(lineText, lineText2);
         }
     }
+    cout <<"Chargement des trajets du fichier termine, retour au menu principal..."<<endl;
+    cout << "--------------------------------------------" << endl;
 }
 
 string Catalogue::ListeFichiers() const
 {
+#ifdef MAP
+    cout << "Appel a la methode <ListeFichiers>" << endl;
+#endif
     //init des variables
     int fileID;
     int i = 1;
     ifstream output;
     vector <string> fileNames;
-    string outputName(".\\battery\\");
+    string outputName("./battery/");
     string lineReader;
     DIR *dir;
     struct dirent *ent;
     //listage des fichiers du repertoire
-    if ((dir = opendir(".\\battery")) != NULL) {
-        cout << "Liste des fichiers disponibles:"<<endl;
+    if ((dir = opendir("./battery")) != NULL) {
+        cout << "--------------------------------------------" << endl;
+        cout << "Liste des fichiers disponibles:" << endl;
         while ((ent = readdir(dir)) != NULL) {
             if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0) {
                 cout << "File " << i++ << ": ";
@@ -593,31 +603,33 @@ string Catalogue::ListeFichiers() const
                 cout << "|" << lineReader;
                 getline(output, lineReader);
                 cout << "|" << lineReader;
-                getline(output,lineReader);
-                cout << "| "<<lineReader<<" TS et ";
-                getline(output,lineReader);
-                cout<<lineReader<<" TC | ";
-                getline(output,lineReader);
-                cout<<"cree le : "<<lineReader<<"."<<endl;
+                getline(output, lineReader);
+                cout << "| " << lineReader << " TS et ";
+                getline(output, lineReader);
+                cout << lineReader << " TC | ";
+                getline(output, lineReader);
+                cout << "cree le : " << lineReader << "." << endl;
                 output.close();
                 output.clear();
-                outputName = ".\\battery\\";
+                outputName = "./battery/";
             }
         }
         closedir(dir);
         //Phase de selection du catalogue a charger
         if (i != 1) {
+            cout << "--------------------------------------------" << endl;
             cout << "Veuillez indiquer le numero du catalogue a charger :" << endl;
             cin >> fileID;
             return fileNames[fileID - 1];
         } else {
             cout << "Aucun Catalogue a charger. Retour au menu..." << endl;
-            cout << "----------------------------------------------------" << endl;
+            cout << "--------------------------------------------" << endl;
             return "0";
         }
     } else {
         //could not open dir
-        cerr<<"Erreur lors de l'ouverture du repertoire"<<endl;
+        cerr << "Erreur lors de l'ouverture du repertoire" << endl;
+        cout << "--------------------------------------------" << endl;
         return "0";
     }
 
@@ -625,10 +637,12 @@ string Catalogue::ListeFichiers() const
 
 void Catalogue::MenuChargement()
 {
+#ifdef MAP
+    cout << "Appel a la methode <MenuChargement>" << endl;
+#endif
     string nomFichier;
     int noOp;
-    cout << "Menu Chargement" << endl;
-    cout << "----------------------------------------"<<endl;
+    cout << "          MENU CHARGEMENT" << endl;
     nomFichier = ListeFichiers();
     if (nomFichier == "0") {
         return;
@@ -722,7 +736,6 @@ void Catalogue::AfficherCatalogue() const
     if (cataVide) {
         cout << "La catalogue est vide" << endl;
     }
-    cout << "--------------------------------------------" << endl;
     cout << "--------------FIN DU CATALOGUE--------------" << endl;
 }
 
@@ -1142,12 +1155,23 @@ void Catalogue::MenuCatalogue()
 #endif
     bool sortie = false;
     int choix = 0;
-    if (_mkdir(".\\battery") == 0) {
+#ifdef LINUX
+    if (mkdir("battery",0777) == 0) {
         cout << "dossier battery cree." << endl;
     } else {
         cout << "battery dir deja existant ou nest pas accessible." << endl;
     }
+#endif
+#ifdef WINDOWS
+    if (_mkdir("./battery") == 0) {
+        cout << "dossier battery cree." << endl;
+    } else {
+        cout << "battery dir deja existant ou nest pas accessible." << endl;
+    }
+#endif
     while (!sortie) {
+        cout << "              MENU PRINCIPAL                "<< endl;
+        cout << "--------------------------------------------" << endl;
         cout << "Choisissez une operation:" << endl;
         cout << "1: Afficher le catalogue" << endl;
         cout << "2: Ajouter un trajet simple" << endl;
@@ -1156,7 +1180,8 @@ void Catalogue::MenuCatalogue()
         cout << "5: Faire une recherche avancee de parcours" << endl;
         cout << "6: Sauvegarder le catalogue" << endl;
         cout << "7: Charger un catalogue" << endl;
-        cout << "8: Quitter le catalogue" << endl;
+        cout << "8: Ouvrir le dossier de sauvegarde dans explorer"<<endl;
+        cout << "9: Quitter le catalogue" << endl;
         cin >> choix;
         switch (choix) {
             case 1:
@@ -1181,6 +1206,14 @@ void Catalogue::MenuCatalogue()
                 MenuChargement();
                 break;
             case 8:
+#ifdef LINUX
+                system("xdg-open ./battery");
+#endif
+#ifdef WINDOWS
+                system("explorer ./battery");
+#endif
+                break;
+            case 9:
                 sortie = true;
                 break;
             default:
@@ -1192,7 +1225,8 @@ void Catalogue::MenuCatalogue()
 
 //-------------------------------------------- Constructeurs - destructeur
 
-Catalogue::Catalogue(char *unNom) {
+Catalogue::Catalogue(char *unNom)
+{
 #ifdef MAP
     cout << "Appel au constructeur de <Catalogue>" << endl;
 #endif
@@ -1211,7 +1245,8 @@ Catalogue::Catalogue(char *unNom) {
 } //----- Fin de Catalogue
 
 
-Catalogue::~Catalogue() {
+Catalogue::~Catalogue()
+{
     Parcours *currentParcours = listeTrajets;
     while (currentParcours->nextParcours != NULL) {
         listeTrajets = listeTrajets->nextParcours;
@@ -1277,8 +1312,11 @@ int ***Catalogue::MatriceNomTrajetsInversee()
 
 string Catalogue::getArriveeFromString(const string st)
 {
+#ifdef MAP
+    cout << "Appel a la methode <getArriveeFromString>" << endl;
+#endif
     string arrivee;
-    int i=0;
+    int i = 0;
     while (st[i] != '|') {
         i++;
     }
@@ -1287,7 +1325,7 @@ string Catalogue::getArriveeFromString(const string st)
         i++;
     }
     i++;
-    while (i < st.size() && st[i]!='|') {
+    while (i < st.size() && st[i] != '|') {
         arrivee.push_back(st[i++]);
     }
     return arrivee;
@@ -1295,8 +1333,11 @@ string Catalogue::getArriveeFromString(const string st)
 
 string Catalogue::getDepartFromString(const string st)
 {
+#ifdef MAP
+    cout << "Appel a la methode <getDepartFromString>" << endl;
+#endif
     string depart;
-    int i=0;
+    int i = 0;
     while (st[i] != '|') {
         i++;
     }
@@ -1309,6 +1350,9 @@ string Catalogue::getDepartFromString(const string st)
 
 void Catalogue::gotoOPLine(ifstream &input)
 {
+#ifdef MAP
+    cout << "Appel a la methode <gotoOPLine>" << endl;
+#endif
     int line = 0;
     string lineText;
     input.seekg(input.beg);
@@ -1319,6 +1363,9 @@ void Catalogue::gotoOPLine(ifstream &input)
 
 void Catalogue::stringToTrajetSimple(const string st)
 {
+#ifdef MAP
+    cout << "Appel a la methode <stringToTrajetSimple>" << endl;
+#endif
     int i = 0;
     string depart, arrivee, transport;
     while (st[i] != '|') {
@@ -1349,6 +1396,9 @@ void Catalogue::stringToTrajetSimple(const string st)
 
 void Catalogue::stringToTrajetCompose(const string st, const string st2)
 {
+#ifdef MAP
+    cout << "Appel a la methode <stringToTrajetCompose>" << endl;
+#endif
     int i = 0;
     string departC, arriveeC, depart, arrivee, transport;
     char *pdepartC = new char[LG];

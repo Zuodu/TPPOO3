@@ -3,14 +3,15 @@
                              -------------------
     début                : 16/11/2016
     copyright            : (C) 2016 par Yohan GRACIA et Zifan YAO
-    e-mail               : $EMAIL$
 *************************************************************************/
 
 //---------- Interface de la classe <Catalogue> (fichier Catalogue.h) ----------------
 #if ! defined ( CATALOGUE_H )
 #define CATALOGUE_H
-
+using namespace std;
 //--------------------------------------------------- Interfaces utilisées
+#include <string>
+#include <fstream>
 #include "TrajetSimple.h"
 #include "TrajetCompose.h"
 #include "Parcours.h"
@@ -31,10 +32,10 @@ public:
 	void SauvegardeFonctionVille() const;
 	void SauvegardeIntervalle() const;
 	void MenuSauvegarde() const;
-	void ChargementTotal(string);
-    void ChargementType(string,int);
-    void ChargementCustomCity(string);
-    void ChargementCustomID(string);
+	void ChargementTotal(string st);
+    void ChargementType(string st,int);
+    void ChargementCustomCity(string st);
+    void ChargementCustomID(string st);
 	string ListeFichiers() const;
 	void MenuChargement();
     void delete2D(char** table);

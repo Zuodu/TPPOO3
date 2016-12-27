@@ -3,7 +3,6 @@
                              -------------------
     début                : 16/11/2016
     copyright            : (C) 2016 par Yohan GRACIA et Zifan YAO
-    e-mail               : $EMAIL$
 *************************************************************************/
 
 //---------- Interface de la classe <Parcours> (fichier Parcours.h) ----------------

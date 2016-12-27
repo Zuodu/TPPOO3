@@ -10,7 +10,6 @@
 using namespace std;
 #include <iostream>
 #include <cstring>
-#include <fstream>
 //------------------------------------------------------ Include personnel
 #include "Trajet.h"
 
@@ -22,9 +21,6 @@ using namespace std;
 //-------------------------------------------------------- Fonctions amies
 
 //----------------------------------------------------- Méthodes publiques
-void Trajet::afficherTrajet () const{}
-void Trajet::sauvegardeTrajet(ofstream &unFlux){}
-
 bool Trajet::comparerTrajet(char* unDepart, char * uneArrivee) const
 {
 #ifdef MAP

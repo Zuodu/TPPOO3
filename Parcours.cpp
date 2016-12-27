@@ -1,9 +1,8 @@
 /*************************************************************************
                            Parcours  -  description
                              -------------------
-    début                : $DATE$
-    copyright            : (C) $YEAR$ par $AUTHOR$
-    e-mail               : $EMAIL$
+    début                : Decembre 2016
+    copyright            : (C) 2016 par Yohan GRACIA et Zifan YAO
 *************************************************************************/
 
 //---------- Réalisation de la classe <Parcours> (fichier Parcours.cpp) ------------
@@ -37,17 +36,6 @@ using namespace std;
 //------------------------------------------------- Surcharge d'opérateurs
 
 //-------------------------------------------- Constructeurs - destructeur
-/*Parcours::Parcours ( const Parcours & unParcours )
-// Algorithme :
-//
-{
-#ifdef MAP
-    cout << "Appel au constructeur de copie de <Parcours>" << endl;
-#endif
-} //----- Fin de Parcours (constructeur de copie)
- */
-
-
 Parcours::Parcours (Trajet *unTrajet)
 // Algorithme :
 //

@@ -1,9 +1,8 @@
 /*************************************************************************
                            TrajetCompose  -  description
                              -------------------
-    début                : $DATE$
-    copyright            : (C) $YEAR$ par $AUTHOR$
-    e-mail               : $EMAIL$
+    début                : Decembre 2016
+    copyright            : (C) 2016 par Yohan GRACIA et Zifan YAO
 *************************************************************************/
 
 //---------- Réalisation de la classe <TrajetCompose> (fichier TrajetCompose.cpp) ------------
