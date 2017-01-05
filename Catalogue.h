@@ -41,7 +41,7 @@ public:
     void delete2D(char** table);
     void delete2D(int** table);
     void delete3D(int*** table);
-    void AfficherCatalogue () const;
+    bool AfficherCatalogue () const;
     void AddToCatalogue(Trajet *unTrajet);
 	void AddToCatalogueTSSaisie();
 	void AddToCatalogueTCSaisie();
