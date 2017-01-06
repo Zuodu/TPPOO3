@@ -49,9 +49,9 @@ void Catalogue::SauvegardeTotale() const
         cin >> nomFichier;
         nomFichier += ".txt";
         if(fileExists("./battery/"+nomFichier)){
-            cerr <<"Le fichier exsite deja, voulez-vous l'ecraser ? (y/n)"<<endl;
+            cerr <<"Le fichier exsite deja, voulez-vous l'ecraser ? (o/n)"<<endl;
             cin >> selector;
-            if(selector.compare("y")==0){
+            if(selector.compare("o")==0){
                 nameOk = true;
             }
         }else{
@@ -165,9 +165,9 @@ void Catalogue::SauvegardeFonctionVille() const
         cin >> nomFichier;
         nomFichier += ".txt";
         if(fileExists("./battery/"+nomFichier)){
-            cerr <<"Le fichier exsite deja, voulez-vous l'ecraser ? (y/n)"<<endl;
+            cerr <<"Le fichier exsite deja, voulez-vous l'ecraser ? (o/n)"<<endl;
             cin >> selector;
-            if(selector.compare("y")==0){
+            if(selector.compare("o")==0){
                 nameOk = true;
             }
         }else{
@@ -201,8 +201,10 @@ void Catalogue::SauvegardeFonctionVille() const
     fichierSortie << nomCatalogue << endl;
     fichierSortie << "Ville" << endl;
     if (departNull && arriveeNull) {
-        fichierSortie << idTS - 1 << endl;
-        fichierSortie << idTC - TCstart - 1 << endl;
+		nbTS = idTS - 1;
+		nbTC = idTC - TCstart - 1;
+        fichierSortie << nbTS << endl;
+        fichierSortie << nbTC << endl;
     } else {
         fichierSortie << "0" << endl;
         fichierSortie << "0" << endl;
@@ -255,11 +257,7 @@ void Catalogue::SauvegardeFonctionVille() const
         }
     }
 	if(nbTC==0 && nbTS ==0){
-		cout <<"Aucun trajet n'a correspondu a votre demande. Continuer ? (y/n)"<<endl;
-		cin >> confirm;
-		if(confirm.compare("n")==0){
-			return;
-		}
+		cout <<"WARNING: Aucun trajet n'a correspondu a votre demande"<<endl;
 	}
     cout << "Sauvegarde faite" << endl;
     cout << "--------------------------------------------" << endl;
@@ -295,9 +293,9 @@ void Catalogue::SauvegardeIntervalle() const
         cin >> nomFichier;
         nomFichier += ".txt";
         if(fileExists("./battery/"+nomFichier)){
-            cerr <<"Le fichier exsite deja, voulez-vous l'ecraser ? (y/n)"<<endl;
+            cerr <<"Le fichier exsite deja, voulez-vous l'ecraser ? (o/n)"<<endl;
             cin >> selector;
-            if(selector.compare("y")==0){
+            if(selector.compare("o")==0){
                 nameOk = true;
             }
         }else{
@@ -321,7 +319,16 @@ void Catalogue::SauvegardeIntervalle() const
         } else if (borneInf > borneSup) {
             cerr << "Veuillez rentrer les bornes dans le bon sens " << endl;
         } else if (borneSup > idTS + idTC - TCstart - 2) {
-            cerr << "Veuillez rentrer une borne superieure inferieure au nombre de trajet du catalogue" << endl;
+            cerr << "WARNING: Votre borne superieure depasse le nombre de trajet du catalogue, voulez vous "
+				"sauvegarder jusqu'au dernier trajet ? (o/n)" << endl;
+			cin >> selector;
+			if (selector.compare("o") == 0) {
+				borneSup = idTS + idTC - TCstart - 2;
+			}
+			else 
+			{
+				cout << "Veuillez rentrer vos bornes a nouveau:" << endl;
+			}
         }
     } while (borneInf > borneSup || borneInf <= 0 || borneSup > idTS + idTC - TCstart - 2);
     time_t date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -383,7 +390,7 @@ void Catalogue::MenuSauvegarde() const
     cout << "4: Sauvegarder un intervalle de trajet (d'un Trajet A a un Trajet B)." << endl;
 	while(!(cin>>choix)){
 		cin.clear();
-		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		//cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		cerr << "entrez un chiffre du menu svp."<<endl;
 	}
     switch (choix) {
@@ -470,16 +477,16 @@ void Catalogue::ChargementCustomCity(string nomFichier)
         cout << "Arrivee ?" << endl;
         cin >> arrivee;
         if (depart.compare("0") == 0 && arrivee.compare("0") == 0) {
-            cerr << "Vous n'avez pas choisi de depart ou d'arrivee. Continuer ? y pour un chargement total, n pour saisir a nouveau. (y/n)" << endl;
+            cerr << "Vous n'avez pas choisi de depart ou d'arrivee. Continuer ? o pour un chargement total, n pour saisir a nouveau. (o/n)" << endl;
 			cin >> selection;
 			if(selection.compare("n")==0){
 				select = true;
 			}
         }
 		if(atoi(arrivee.c_str())!=0 || atoi(depart.c_str())!=0){
-			cerr << "WARNING : Le format d'entre de vos villes ne semble pas correct. Saisir a nouveau ? (y/n)" << endl;
+			cerr << "WARNING : Le format d'entre de vos villes ne semble pas correct. Saisir a nouveau ? (o/n)" << endl;
 			cin >> selection;
-			if(selection.compare("y")==0){
+			if(selection.compare("o")==0){
 				select = true;
 			}
 		}
@@ -502,7 +509,7 @@ void Catalogue::ChargementCustomCity(string nomFichier)
 				nbTrajetsCharges++;
 			}
 		}
-		cout <<"fin du chargement, retour au menu principal..."<<endl<<"--------------------------------------------" << endl;
+		cout <<"Fin du chargement, retour au menu principal..."<<endl<<"--------------------------------------------" << endl;
 	}else if (arrivee.compare("0") == 0) {//cas seulement depart est donne
         while (getline(chargement, lineText)) {
             if (atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
@@ -519,7 +526,7 @@ void Catalogue::ChargementCustomCity(string nomFichier)
                 }
             }
         }
-        cout <<"fin du chargement, retour au menu principal..."<<endl<<"--------------------------------------------" << endl;
+        cout <<"Fin du chargement, retour au menu principal..."<<endl<<"--------------------------------------------" << endl;
     } else if (depart.compare("0") == 0) {//cas seulement arrivee est donnee
         while (getline(chargement, lineText)) {
             if (atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
@@ -536,7 +543,7 @@ void Catalogue::ChargementCustomCity(string nomFichier)
                 }
             }
         }
-        cout << "fin du chargement, retour au menu principal..."<<endl<< "--------------------------------------------" << endl;
+        cout << "Fin du chargement, retour au menu principal..."<<endl<< "--------------------------------------------" << endl;
     } else {//cas depart et arrivee sont donnes
         while (getline(chargement, lineText)) {
             if (atoi(lineText.substr(0, 4).c_str()) <= 1000 && atoi(lineText.substr(0, 4).c_str()) > 0) {
@@ -555,7 +562,7 @@ void Catalogue::ChargementCustomCity(string nomFichier)
                 }
             }
         }
-        cout << "fin du chargement, retour au menu principal..." << endl<< "--------------------------------------------" << endl;
+        cout << "Fin du chargement, retour au menu principal..." << endl<< "--------------------------------------------" << endl;
     }
     if (nbTrajetsCharges == 0) {
         cerr << "ATTENTION: aucun trajet du fichier ne correspond aux conditions, aucun trajet n'a ete charge." << endl;
@@ -611,9 +618,9 @@ void Catalogue::ChargementCustomID(string nomFichier)
         }
         if (fin > IDSvg - 1) {
             cerr<<"ATTENTION : la fin de l'intervalle depasse le nombre total de trajet, se limiter au dernier trajet ?"
-                            "y pour oui, n pour recommencer la saisie. (y/n)" << endl;
+                            "o pour oui, n pour recommencer la saisie. (o/n)" << endl;
             cin >> response;
-            if (response.compare("y") == 0) {
+            if (response.compare("o") == 0) {
                 fin = IDSvg - 1;
             } else {
                 select = true;
@@ -644,7 +651,7 @@ void Catalogue::ChargementCustomID(string nomFichier)
             IDSvg++;
         }
     }//END OF CHARGEMENT
-    cout << "fin du chargement, " << nbTrajetsCharges << " Trajets ont ete charges, retour au menu principal..."
+    cout << "Fin du chargement, " << nbTrajetsCharges << " Trajets ont ete charges, retour au menu principal..."
          << endl;
     cout << "--------------------------------------------" << endl;
 }
@@ -735,7 +742,7 @@ string Catalogue::ListeFichiers() const
             cout << "Veuillez indiquer le numero du catalogue a charger :" << endl;
 			while(!(cin>>fileID)){
 				cin.clear();
-				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+//				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				cout << "entrez un chiffre du menu svp."<<endl;
 			}
             if(find(blacklist.begin(), blacklist.end(), fileID) != blacklist.end()){
@@ -778,7 +785,7 @@ void Catalogue::MenuChargement()
         cout << "5: Selon une selection de trajets" << endl;
 		while(!(cin>>noOp)){
 			cin.clear();
-			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			//cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			cout << "entrez un chiffre du menu svp."<<endl;
 		}
         switch (noOp) {
@@ -1310,7 +1317,7 @@ void Catalogue::MenuCatalogue()
         cout << "9: Quitter le catalogue" << endl;
 		while(!(cin>>choix)){
 			cin.clear();
-			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+//			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			cout << "entrez un chiffre du menu svp."<<endl;
 		}
 			switch (choix) {

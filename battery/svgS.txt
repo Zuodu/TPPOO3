@@ -1,0 +1,8 @@
+Cata1
+Type
+2
+0
+Fri Jan  6 11:11:38 2017
+
+1|A|B|U
+2|B|C|P

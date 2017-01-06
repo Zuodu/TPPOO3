@@ -1,0 +1,12 @@
+Cata1
+Intervalle
+2
+2
+Fri Jan  6 11:15:21 2017
+
+1001|A|C
+|A|B|U|B|C|Y
+1|A|B|U
+1002|A|C
+|A|B|P|H|C|K
+2|B|C|P
