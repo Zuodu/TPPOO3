@@ -312,8 +312,16 @@ void Catalogue::SauvegardeIntervalle() const
             << "Veuillez rentrer l'intervalle des trajets que vous voulez sauvegarder (borne inferieure puis borne "
                     "superieure, separees par un saut de ligne) :" << endl;
     do {
-        cin >> borneInf;
-        cin >> borneSup;
+		while(!(cin>>borneInf)){
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cerr << "entrez un chiffre svp."<<endl;
+		}
+		while(!(cin>>borneSup)){
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cerr << "entrez un chiffre svp."<<endl;
+		}
         if (borneInf <= 0) {
             cerr << "Veuillez rentrer une borne strictement positive" << endl;
         } else if (borneInf > borneSup) {
@@ -390,7 +398,7 @@ void Catalogue::MenuSauvegarde() const
     cout << "4: Sauvegarder un intervalle de trajet (d'un Trajet A a un Trajet B)." << endl;
 	while(!(cin>>choix)){
 		cin.clear();
-		//cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		cerr << "entrez un chiffre du menu svp."<<endl;
 	}
     switch (choix) {
@@ -609,9 +617,17 @@ void Catalogue::ChargementCustomID(string nomFichier)
         select = false;
         cout << "--------------------------------------------" << endl << "Quels trajets choisir ?" << endl;
         cout << "De ?" << endl;
-        cin >> debut;
+		while(!(cin>>debut)){
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cerr << "entrez un chiffre svp."<<endl;
+		}
         cout << "A ?" << endl;
-        cin >> fin;
+		while(!(cin>>fin)){
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cerr << "entrez un chiffre svp."<<endl;
+		}
         if (debut < 1) {
             cerr << "ATTENTION : Le debut de l'intervalle  est plus petit que 1 ! Recommencez la saisie" << endl;
             select = true;
@@ -742,7 +758,7 @@ string Catalogue::ListeFichiers() const
             cout << "Veuillez indiquer le numero du catalogue a charger :" << endl;
 			while(!(cin>>fileID)){
 				cin.clear();
-//				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				cout << "entrez un chiffre du menu svp."<<endl;
 			}
             if(find(blacklist.begin(), blacklist.end(), fileID) != blacklist.end()){
@@ -785,7 +801,7 @@ void Catalogue::MenuChargement()
         cout << "5: Selon une selection de trajets" << endl;
 		while(!(cin>>noOp)){
 			cin.clear();
-			//cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			cout << "entrez un chiffre du menu svp."<<endl;
 		}
         switch (noOp) {
@@ -1317,7 +1333,7 @@ void Catalogue::MenuCatalogue()
         cout << "9: Quitter le catalogue" << endl;
 		while(!(cin>>choix)){
 			cin.clear();
-//			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			cout << "entrez un chiffre du menu svp."<<endl;
 		}
 			switch (choix) {
@@ -1482,7 +1498,6 @@ string Catalogue::getDepartFromString(const string st)
     while (st[i] != '|') {
         depart.push_back(st[i++]);
     }
-	cout<<"depart="<<depart<<endl;
     return depart;
 }
 
